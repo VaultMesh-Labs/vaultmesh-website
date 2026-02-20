@@ -11,5 +11,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Run nav/footer drift guard
-        run: bash scripts/nav_footer_guard.sh
+      - name: Build site
+        run: ./build.sh
+
+      - name: NAV+FOOTER guard
+        run: bash -euo pipefail scripts/nav_footer_guard.sh --dist

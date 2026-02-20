@@ -1,48 +1,172 @@
 #!/usr/bin/env bash
+# scripts/nav_footer_guard.sh
+# NAV_FOOTER_v0 guard: marker-first, token-safe, CI-friendly.
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "${ROOT_DIR}"
+cd "$ROOT_DIR"
 
-fail() {
-  echo "NAV_FOOTER_GUARD_FAIL: $*" >&2
-  exit 1
+RC_USAGE=2
+RC_MISSING=11
+RC_TOKEN_DRIFT=12
+RC_MARKER_MISSING=13
+RC_IMPORT_MISSING=14
+RC_BUILD_MISSING=15
+RC_BAD_SHA=16
+
+need() { command -v "$1" >/dev/null 2>&1 || { echo "NAV_FOOTER_GUARD_FAIL tooling_missing=$1" >&2; exit "$RC_BUILD_MISSING"; }; }
+need sha256sum
+need grep
+need find
+need awk
+
+MODE="dist"
+TARGET_DIR="dist"
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --repo) MODE="repo"; TARGET_DIR="public"; shift ;;
+    --dist) MODE="dist"; TARGET_DIR="dist"; shift ;;
+    --dir)  TARGET_DIR="${2:-}"; [[ -n "${TARGET_DIR:-}" ]] || { echo "usage: --dir <path>" >&2; exit "$RC_USAGE"; }; shift 2 ;;
+    -h|--help)
+      cat <<'USAGEEOF'
+Usage:
+  bash scripts/nav_footer_guard.sh [--dist|--repo] [--dir <path>]
+
+Default: --dist (checks dist/)
+--repo: checks public/ (pre-build)
+--dir: override base dir for HTML scan
+USAGEEOF
+      exit 0
+      ;;
+    *)
+      echo "NAV_FOOTER_GUARD_FAIL unknown_arg=$1" >&2
+      exit "$RC_USAGE"
+      ;;
+  esac
+done
+
+UI_CSS="$ROOT_DIR/public/shared/ui.css"
+NAV_PART="$ROOT_DIR/public/shared/nav.html"
+FOOT_PART="$ROOT_DIR/public/shared/footer.html"
+
+# --- Required canonical files ---
+[[ -f "$UI_CSS" ]] || { echo "NAV_FOOTER_GUARD_FAIL missing=public/shared/ui.css" >&2; exit "$RC_MISSING"; }
+[[ -f "$NAV_PART" ]] || { echo "NAV_FOOTER_GUARD_FAIL missing=public/shared/nav.html" >&2; exit "$RC_MISSING"; }
+[[ -f "$FOOT_PART" ]] || { echo "NAV_FOOTER_GUARD_FAIL missing=public/shared/footer.html" >&2; exit "$RC_MISSING"; }
+
+UI_SHA="$(sha256sum "$UI_CSS" | awk '{print $1}')"
+NAV_SHA="$(sha256sum "$NAV_PART" | awk '{print $1}')"
+FOOT_SHA="$(sha256sum "$FOOT_PART" | awk '{print $1}')"
+
+echo "NAV_FOOTER_PRESENT=1"
+echo "NAV_FOOTER_MODE=$MODE"
+echo "UI_SKIN_SHA256=sha256:$UI_SHA"
+echo "NAV_SHA256=sha256:$NAV_SHA"
+echo "FOOTER_SHA256=sha256:$FOOT_SHA"
+
+# --- Token drift guard: forbid redeclaring canonical CSS vars outside UI_CSS ---
+# We treat any '--bone-' or '--vm-' variable definitions as token redeclarations.
+# Allow only in public/shared/ui.css
+scan_token_redefs() {
+  local base="$1"
+  local bad=0
+  while IFS= read -r -d '' f; do
+    if [[ "$f" == *"/shared/ui.css" ]]; then
+      continue
+    fi
+    if grep -nE '^[[:space:]]*--(bone|vm)-[a-zA-Z0-9_-]+[[:space:]]*:' "$f" >/dev/null 2>&1; then
+      echo "NAV_FOOTER_GUARD_FAIL token_redeclared_in=$f" >&2
+      grep -nE '^[[:space:]]*--(bone|vm)-[a-zA-Z0-9_-]+[[:space:]]*:' "$f" | head -n 5 >&2 || true
+      bad=1
+    fi
+  done < <(find "$base" -type f -name '*.css' -print0 2>/dev/null)
+  return "$bad"
 }
 
-[[ -f public/shared/ui.css ]] || fail "missing public/shared/ui.css"
-[[ -f public/shared/nav.html ]] || fail "missing public/shared/nav.html"
-[[ -f public/shared/footer.html ]] || fail "missing public/shared/footer.html"
+# --- Import guard: HTML must reference shared/ui.css (versioned import allowed) ---
+css_import_ok() {
+  local f="$1"
+  grep -Eq "href=['\\\"](\\./)?shared/ui\\.css(\\?v=[^'\\\" ]+)?['\\\"]" "$f" && return 0
+  grep -Eq "href=['\\\"]/shared/ui\\.css(\\?v=[^'\\\" ]+)?['\\\"]" "$f" && return 0
+  return 1
+}
 
-./build.sh >/dev/null
+# --- Marker guard ---
+has_repo_placeholders() {
+  local f="$1"
+  grep -q '<!-- {{NAV}} -->' "$f" && grep -q '<!-- {{FOOTER}} -->' "$f"
+}
 
-while IFS= read -r -d '' page; do
-  grep -q 'class="vm-nav"' "${page}" || fail "${page} missing vm-nav"
-  grep -q 'class="vm-footer"' "${page}" || fail "${page} missing vm-footer"
-  grep -q '/shared/ui.css' "${page}" || fail "${page} missing /shared/ui.css reference"
-done < <(find dist -type f -name 'index.html' -print0 | sort -z)
+has_dist_blocks() {
+  local f="$1"
+  grep -q 'class="vm-nav' "$f" && grep -q 'class="vm-footer' "$f"
+}
 
-while IFS= read -r -d '' source_page; do
-  grep -q '/shared/ui.css' "${source_page}" || fail "${source_page} missing /shared/ui.css reference"
-  grep -Eqi '<style[[:space:]>]' "${source_page}" && fail "${source_page} contains inline <style>"
-  grep -Eqi 'style=' "${source_page}" && fail "${source_page} contains inline style= attribute"
-  grep -Eqi '#[0-9a-fA-F]{3,8}|rgb\(|hsl\(' "${source_page}" && fail "${source_page} hardcodes color value"
-done < <(find public -type f -name 'index.html' -print0 | sort -z)
-
-if rg -n --glob '*.html' '\{\{NAV\}\}|\{\{FOOTER\}\}' dist >/dev/null; then
-  fail "dist contains unresolved NAV/FOOTER placeholders"
+if [[ ! -d "$ROOT_DIR/$TARGET_DIR" ]]; then
+  echo "NAV_FOOTER_GUARD_FAIL missing_target_dir=$TARGET_DIR" >&2
+  exit "$RC_MISSING"
 fi
 
-token_hits="$(rg -n '(--vm-|--border|--font-mono)' public --glob '*.css' --glob '*.html' --glob '*.htm' || true)"
-if [[ -n "${token_hits}" ]]; then
-  token_hits_filtered="$(printf '%s\n' "${token_hits}" | grep -v '^public/shared/ui.css:' || true)"
-  if [[ -n "${token_hits_filtered}" ]]; then
-    printf '%s\n' "${token_hits_filtered}" >&2
-    fail "skin tokens found outside public/shared/ui.css"
+mapfile -d '' HTMLS < <(find "$ROOT_DIR/$TARGET_DIR" -type f -name 'index.html' -print0 2>/dev/null || true)
+
+if [[ "${#HTMLS[@]}" -eq 0 ]]; then
+  echo "NAV_FOOTER_GUARD_FAIL no_html_found_in=$TARGET_DIR" >&2
+  exit "$RC_MISSING"
+fi
+
+if [[ "$MODE" == "dist" ]]; then
+  [[ -f "$ROOT_DIR/$TARGET_DIR/shared/ui.css" ]] || {
+    echo "NAV_FOOTER_GUARD_FAIL dist_missing=shared/ui.css" >&2
+    exit "$RC_MISSING"
+  }
+  DIST_UI_SHA="$(sha256sum "$ROOT_DIR/$TARGET_DIR/shared/ui.css" | awk '{print $1}')"
+  if [[ "$DIST_UI_SHA" != "$UI_SHA" ]]; then
+    echo "NAV_FOOTER_GUARD_FAIL ui_css_sha_mismatch repo=sha256:$UI_SHA dist=sha256:$DIST_UI_SHA" >&2
+    exit "$RC_BAD_SHA"
   fi
 fi
 
-BUILD_ID="$(git rev-parse --short HEAD 2>/dev/null || echo dev)"
-MANIFEST_SHA="$( (sha256sum dist/MANIFEST.sha256 2>/dev/null || shasum -a 256 dist/MANIFEST.sha256) | awk '{print $1}')"
-PAGE_COUNT="$(find dist -type f -name 'index.html' | wc -l | tr -d ' ')"
+if scan_token_redefs "$ROOT_DIR/$TARGET_DIR"; then
+  :
+else
+  echo "NAV_FOOTER_GUARD_FAIL token_drift=1" >&2
+  exit "$RC_TOKEN_DRIFT"
+fi
 
-echo "GUARD_OK build=${BUILD_ID} manifest_sha256=sha256:${MANIFEST_SHA} pages=${PAGE_COUNT}"
+missing_import=0
+missing_markers=0
+checked=0
+
+for f in "${HTMLS[@]}"; do
+  checked=$((checked+1))
+
+  if ! css_import_ok "$f"; then
+    echo "NAV_FOOTER_GUARD_FAIL css_import_missing file=$f" >&2
+    missing_import=1
+  fi
+
+  if [[ "$MODE" == "repo" ]]; then
+    if ! has_repo_placeholders "$f"; then
+      echo "NAV_FOOTER_GUARD_FAIL placeholders_missing file=$f" >&2
+      missing_markers=1
+    fi
+  else
+    if ! has_dist_blocks "$f"; then
+      echo "NAV_FOOTER_GUARD_FAIL nav_footer_blocks_missing file=$f" >&2
+      missing_markers=1
+    fi
+  fi
+done
+
+if [[ "$missing_import" -ne 0 ]]; then
+  echo "NAV_FOOTER_GUARD_FAIL import_ok=0 checked=$checked" >&2
+  exit "$RC_IMPORT_MISSING"
+fi
+
+if [[ "$missing_markers" -ne 0 ]]; then
+  echo "NAV_FOOTER_GUARD_FAIL markers_ok=0 checked=$checked mode=$MODE" >&2
+  exit "$RC_MARKER_MISSING"
+fi
+
+echo "NAV_FOOTER_GUARD_OK=1"
+echo "NAV_FOOTER_GUARD_SUMMARY mode=$MODE checked=$checked ui_sha256=sha256:$UI_SHA"

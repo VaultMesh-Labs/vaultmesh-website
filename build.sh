@@ -77,6 +77,10 @@ while IFS= read -r -d '' html_file; do
   inject_marker_file "<!-- {{FOOTER}} -->" "public/shared/footer.html" "$html_file"
 done < <(find dist -type f -name "*.html" -print0)
 
+# Shared template fragments are build inputs, not shipped artifacts.
+rm -f dist/shared/nav.html dist/shared/footer.html
+rm -rf dist/shared/partials
+
 find dist -type f -name "*.html" -exec sed -i.bak "s/{{BUILD_ID}}/${BUILD_ID}/g" {} +
 find dist -type f -name "*.html" -exec sed -E -i.bak "s/Build: STATIC/Build: ${BUILD_ID}/g" {} +
 find dist -type f -name "*.bak" -delete
