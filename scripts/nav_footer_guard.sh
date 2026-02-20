@@ -13,6 +13,9 @@ RC_MARKER_MISSING=13
 RC_IMPORT_MISSING=14
 RC_BUILD_MISSING=15
 RC_BAD_SHA=16
+RC_FOOTER_MISSING=21
+RC_FOOTER_INVERTED=22
+RC_FOOTER_NOT_FOUND=23
 
 need() { command -v "$1" >/dev/null 2>&1 || { echo "NAV_FOOTER_GUARD_FAIL tooling_missing=$1" >&2; exit "$RC_BUILD_MISSING"; }; }
 need sha256sum
@@ -166,6 +169,25 @@ fi
 if [[ "$missing_markers" -ne 0 ]]; then
   echo "NAV_FOOTER_GUARD_FAIL markers_ok=0 checked=$checked mode=$MODE" >&2
   exit "$RC_MARKER_MISSING"
+fi
+
+# --- Footer phrase lock ---
+FOOTER_EXPECTED="© VaultMesh Foundation — Proof > Power"
+
+if ! grep -R --fixed-strings "$FOOTER_EXPECTED" "$ROOT_DIR/$TARGET_DIR" >/dev/null 2>&1; then
+  echo "NAV_FOOTER_GUARD_FAIL footer_phrase_missing" >&2
+  exit "$RC_FOOTER_MISSING"
+fi
+
+if grep -R --fixed-strings "Power > Proof" "$ROOT_DIR/$TARGET_DIR" >/dev/null 2>&1; then
+  echo "NAV_FOOTER_GUARD_FAIL footer_phrase_inverted" >&2
+  exit "$RC_FOOTER_INVERTED"
+fi
+
+count="$(grep -R --fixed-strings "$FOOTER_EXPECTED" "$ROOT_DIR/$TARGET_DIR" | wc -l | awk '{print $1}')"
+if [[ "$count" -lt 1 ]]; then
+  echo "NAV_FOOTER_GUARD_FAIL footer_phrase_not_found" >&2
+  exit "$RC_FOOTER_NOT_FOUND"
 fi
 
 echo "NAV_FOOTER_GUARD_OK=1"
