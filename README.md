@@ -46,6 +46,7 @@ Defaults:
 - `REMOTE_DIR=/srv/web/vaultmesh`
 
 `deploy.sh` builds, prints `dist/MANIFEST.sha256`, deploys with rsync, then verifies remote `MANIFEST.sha256` hash matches local.
+Deployment uses rsync checksum mode so content changes are propagated even with fixed mtimes.
 
 ## Make Targets
 

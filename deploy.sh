@@ -26,7 +26,9 @@ REMOTE_DIR="${REMOTE_DIR%/}"
 
 ./build.sh
 cat dist/MANIFEST.sha256
-rsync -avz --delete dist/ "${REMOTE_HOST}:${REMOTE_DIR}/"
+# Use checksum mode because files have deterministic mtimes and may keep equal size
+# across commits while content changes (e.g., BUILD_ID placeholder replacement).
+rsync -avzc --delete dist/ "${REMOTE_HOST}:${REMOTE_DIR}/"
 
 LOCAL_MANIFEST_HASH=$(local_hash "dist/MANIFEST.sha256")
 REMOTE_MANIFEST_HASH=$(remote_hash "${REMOTE_HOST}" "${REMOTE_DIR}/MANIFEST.sha256")
