@@ -1,25 +1,20 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Attest | VaultMesh</title>
-  <link rel="stylesheet" href="/shared/ui.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VaultMesh - Attest</title>
+  <link rel="stylesheet" href="/shared/ui.css?v=bone-v04" />
 </head>
-<body>
-  <main>
-    <section class="panel">
-      <h1>Attest</h1>
-      <p>Public attestation records for root history continuity.</p>
-      <nav>
-        <ul>
-          <li><a href="/attest/ROOT_HISTORY.txt">ROOT_HISTORY.txt</a></li>
-          <li><a href="/attest/ROOT_HISTORY.sig">ROOT_HISTORY.sig</a></li>
-        </ul>
-      </nav>
-      <p><a href="/">Back to home</a></p>
-      <footer>Build: {{BUILD_ID}}</footer>
-    </section>
+<body class="vm-bg">
+  <main class="vm-container">
+
+    {{ATTEST_PANEL}}
+
+    <nav class="vm-nav">
+      <a href="/">Back to home</a>
+    </nav>
+
   </main>
 </body>
 </html>

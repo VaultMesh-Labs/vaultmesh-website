@@ -17,6 +17,8 @@ public/
     ROOT_HISTORY.sig
   shared/
     ui.css
+    partials/
+      attest_panel.html
 ```
 
 Historical snapshots are not stored in `public/`; history is preserved in Git commits.
@@ -34,6 +36,7 @@ Historical snapshots are not stored in `public/`; history is preserved in Git co
 - `dist/BUILD_PROOF.txt`
 
 The script also replaces `{{BUILD_ID}}` in HTML files with `git rev-parse --short HEAD`.
+`dist/attest/index.html` is built by injecting `public/shared/partials/attest_panel.html` into the `{{ATTEST_PANEL}}` placeholder.
 
 ## Deploy
 

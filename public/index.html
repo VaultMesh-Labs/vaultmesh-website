@@ -1,26 +1,39 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>VaultMesh</title>
-  <link rel="stylesheet" href="/shared/ui.css">
+  <link rel="stylesheet" href="/shared/ui.css?v=bone-v04" />
 </head>
-<body>
-  <main>
-    <section class="panel">
-      <h1>VaultMesh Public Surface</h1>
-      <p>Deterministic static artifact for public verification and support routing.</p>
-      <nav>
-        <ul>
-          <li><a href="/proof-pack/">Proof Pack</a></li>
-          <li><a href="/support/">Support</a></li>
-          <li><a href="/trust/">Trust</a></li>
-          <li><a href="/verify/">Verify</a></li>
-          <li><a href="/attest/">Attest</a></li>
-        </ul>
-      </nav>
-      <footer>Build: {{BUILD_ID}}</footer>
+<body class="vm-bg">
+  <main class="vm-container">
+    <section class="vm-panel">
+      <header class="vm-panel-header">
+        <h1 class="vm-title">VaultMesh Public Surface</h1>
+        <span class="vm-chip vm-chip-neutral">bone-v04</span>
+      </header>
+      <p class="vm-muted">Deterministic static artifact for verification, support, and attestation continuity.</p>
+      <div class="vm-divider"></div>
+      <ul class="vm-list vm-list-links">
+        <li><a href="/proof-pack/">Proof Pack</a></li>
+        <li><a href="/support/">Support</a></li>
+        <li><a href="/trust/">Trust</a></li>
+        <li><a href="/verify/">Verify</a></li>
+        <li><a href="/attest/">Attest</a></li>
+      </ul>
+      <div class="vm-meta">Build: {{BUILD_ID}}</div>
+    </section>
+
+    <section class="vm-grid">
+      <article class="vm-card">
+        <h2>Proof</h2>
+        <p class="vm-muted">Public proof-pack surface and operational intake boundary.</p>
+      </article>
+      <article class="vm-card">
+        <h2>Continuity</h2>
+        <p class="vm-muted">Attestation records and signature continuity published statically.</p>
+      </article>
     </section>
   </main>
 </body>

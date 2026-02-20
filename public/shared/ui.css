@@ -1,67 +1,197 @@
+/* VaultMesh UI Skin v1 - bone-v04 */
 :root {
-  --bg: #f6f7f9;
-  --surface: #ffffff;
-  --ink: #101217;
-  --muted: #5b6170;
-  --line: #d9dde6;
-  --accent: #0f7a5a;
+  --vm-bg: #0b0f14;
+  --vm-surface: #101722;
+  --vm-surface-2: #0d141f;
+  --vm-ink: #e8decd;
+  --vm-muted: #b8ad9d;
+  --vm-line: rgba(232, 222, 205, 0.24);
+  --vm-accent: #d9c7a7;
+  --vm-accent-2: #9ed7ff;
+  --vm-ok: #34d399;
+  --vm-warn: #fbbf24;
+  --vm-bad: #fb7185;
+  --vm-radius: 14px;
+  --vm-max: 980px;
+  --vm-shadow: 0 16px 44px rgba(0, 0, 0, 0.42);
+  --vm-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --vm-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 * {
   box-sizing: border-box;
 }
 
+html,
 body {
+  min-height: 100%;
+}
+
+body,
+.vm-bg {
   margin: 0;
-  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
-  background: var(--bg);
-  color: var(--ink);
+  font-family: var(--vm-sans);
+  color: var(--vm-ink);
+  background:
+    radial-gradient(1200px 640px at 18% -10%, rgba(217, 199, 167, 0.12), transparent 55%),
+    radial-gradient(900px 560px at 80% -8%, rgba(158, 215, 255, 0.11), transparent 52%),
+    var(--vm-bg);
 }
 
-main {
-  max-width: 860px;
-  margin: 48px auto;
-  padding: 0 20px;
-}
-
-.panel {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 28px;
-}
-
-h1 {
-  margin: 0 0 10px;
-  font-size: 2rem;
-}
-
-p {
-  margin: 0 0 14px;
-  color: var(--muted);
-  line-height: 1.5;
-}
-
-nav a,
 a {
-  color: var(--accent);
+  color: var(--vm-accent-2);
   text-decoration: none;
 }
 
-nav ul {
-  margin: 12px 0 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 16px;
+a:hover {
+  text-decoration: underline;
 }
 
-footer {
-  margin-top: 22px;
-  padding-top: 14px;
-  border-top: 1px solid var(--line);
-  font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
-  font-size: 0.85rem;
-  color: var(--muted);
+.vm-container {
+  max-width: var(--vm-max);
+  margin: 0 auto;
+  padding: 40px 18px 66px;
+}
+
+.vm-panel,
+.vm-card {
+  border: 1px solid var(--vm-line);
+  border-radius: var(--vm-radius);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.015)), var(--vm-surface);
+  box-shadow: var(--vm-shadow);
+  padding: 18px;
+}
+
+.vm-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0.012)), var(--vm-surface-2);
+}
+
+.vm-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.vm-title {
+  margin: 0;
+  font-size: clamp(1.4rem, 3.4vw, 2rem);
+  letter-spacing: -0.02em;
+  color: var(--vm-ink);
+}
+
+.vm-muted {
+  margin: 12px 0 0;
+  color: var(--vm-muted);
+  line-height: 1.6;
+}
+
+.vm-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--vm-line);
+  color: var(--vm-ink);
+  font-family: var(--vm-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.vm-chip-neutral {
+  background: rgba(232, 222, 205, 0.08);
+}
+
+.vm-chip-ok {
+  border-color: rgba(52, 211, 153, 0.52);
+}
+
+.vm-chip-warn {
+  border-color: rgba(251, 191, 36, 0.52);
+}
+
+.vm-chip-bad {
+  border-color: rgba(251, 113, 133, 0.55);
+}
+
+.vm-list {
+  margin: 14px 0 0;
+  padding-left: 18px;
+}
+
+.vm-list li {
+  margin: 8px 0;
+  color: var(--vm-ink);
+}
+
+.vm-list-links {
+  list-style: disc;
+}
+
+.vm-divider {
+  height: 1px;
+  margin: 16px 0 10px;
+  background: var(--vm-line);
+}
+
+.vm-meta {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--vm-line);
+  font-family: var(--vm-mono);
+  font-size: 0.82rem;
+  color: var(--vm-muted);
+}
+
+.vm-grid {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.vm-card h2 {
+  margin: 0 0 8px;
+  color: var(--vm-ink);
+}
+
+.vm-card p {
+  margin: 0;
+  color: var(--vm-muted);
+}
+
+.vm-nav {
+  margin-top: 16px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.vm-navlinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-top: 14px;
+}
+
+.vm-navlinks a {
+  color: var(--vm-ink);
+  opacity: 0.86;
+}
+
+.vm-navlinks a.active {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+@media (max-width: 760px) {
+  .vm-container {
+    padding: 28px 14px 48px;
+  }
+
+  .vm-grid {
+    grid-template-columns: 1fr;
+  }
 }

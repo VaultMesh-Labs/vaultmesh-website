@@ -1,19 +1,25 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Trust | VaultMesh</title>
-  <link rel="stylesheet" href="/shared/ui.css">
+  <link rel="stylesheet" href="/shared/ui.css?v=bone-v04" />
 </head>
-<body>
-  <main>
-    <section class="panel">
-      <h1>Trust</h1>
-      <p>Trust model and public controls boundary for the website layer.</p>
-      <p><a href="/">Back to home</a></p>
-      <footer>Build: {{BUILD_ID}}</footer>
+<body class="vm-bg">
+  <main class="vm-container">
+    <section class="vm-panel">
+      <header class="vm-panel-header">
+        <h1 class="vm-title">Trust</h1>
+        <span class="vm-chip vm-chip-neutral">Boundary Contract</span>
+      </header>
+      <p class="vm-muted">Trust boundaries and verification contract for the public website layer.</p>
+      <div class="vm-meta">Build: {{BUILD_ID}}</div>
     </section>
+
+    <nav class="vm-nav">
+      <a href="/">Back to home</a>
+    </nav>
   </main>
 </body>
 </html>
