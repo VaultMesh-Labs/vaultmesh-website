@@ -6,19 +6,24 @@
   <title>Verify | VaultMesh</title>
   <link rel="stylesheet" href="/shared/ui.css?v=bone-v04" />
 </head>
-<body class="vm-bg">
+<body class="vm-attest">
   <!-- {{NAV}} -->
-  <main class="vm-container">
-    <section class="vm-panel">
-      <header class="vm-panel-header">
-        <h1 class="vm-title">Verify</h1>
-        <span class="vm-chip vm-chip-neutral">Audit Surface</span>
-      </header>
-      <p class="vm-muted">Independent verification entrypoint for manifest and attestation artifacts.</p>
-      <div class="vm-meta">Build: {{BUILD_ID}}</div>
-    </section>
+  <div class="wrap">
+    <h1>Verify</h1>
+    <div class="sub">Independent verification entrypoint for manifest and attestation artifacts.</div>
 
-  </main>
+    <div class="grid">
+      <div class="card span12">
+        <div class="label">Verification Targets</div>
+        <div class="row"><div class="k">manifest</div><div class="v"><code>/MANIFEST.sha256</code></div></div>
+        <div class="row"><div class="k">build_proof</div><div class="v"><code>/BUILD_PROOF.txt</code></div></div>
+        <div class="row"><div class="k">attestation</div><div class="v"><code>/attest/attest.json</code></div></div>
+        <div class="row"><div class="k">latest_pointer</div><div class="v"><code>/attest/LATEST.txt</code></div></div>
+      </div>
+    </div>
+
+    <div class="footer">Build: {{BUILD_ID}}</div>
+  </div>
   <!-- {{FOOTER}} -->
 </body>
 </html>

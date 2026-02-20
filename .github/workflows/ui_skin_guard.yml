@@ -1,0 +1,21 @@
+name: ui-skin-guard
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build site
+        run: ./build.sh
+
+      - name: UI skin guard (repo)
+        run: bash -euo pipefail scripts/ui_skin_guard.sh --repo
+
+      - name: UI skin guard (dist)
+        run: bash -euo pipefail scripts/ui_skin_guard.sh --dist
