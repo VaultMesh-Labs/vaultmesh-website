@@ -5,37 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>VaultMesh - Public Attestation (v1.1)</title>
   <link rel="stylesheet" href="/shared/ui.css?v=bone-v04" />
-  <style>
-    :root { color-scheme: dark; }
-    body { margin:0; background:#050505; color:#eaeaea; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
-    .wrap { max-width: 1100px; margin: 0 auto; padding: 18px; }
-    h1 { font-size: 18px; margin: 0 0 8px 0; letter-spacing: .02em; }
-    .sub { opacity: .8; font-size: 12px; margin-bottom: 14px; }
-    .grid { display:grid; grid-template-columns: repeat(12, 1fr); gap: 10px; }
-    .card { border: 1px solid #222; border-radius: 12px; padding: 12px; background: #0b0b0b; }
-    .span6 { grid-column: span 6; }
-    .span4 { grid-column: span 4; }
-    .span12{ grid-column: span 12; }
-    .label { font-size: 11px; opacity: .8; margin-bottom: 8px; }
-    .row { display:flex; align-items:center; justify-content:space-between; padding: 6px 0; border-top: 1px solid #1a1a1a; }
-    .row:first-of-type { border-top: none; }
-    .k { font-size: 12px; opacity: .9; }
-    .v { font-size: 12px; opacity: .95; max-width: 70%; overflow:hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid #333; }
-    .PRESENT { border-color: #2a2; }
-    .MISSING { border-color: #555; opacity: .7; }
-    .UNKNOWN { border-color: #aa2; }
-    .INVALID { border-color: #a22; }
-    .muted { opacity: .75; }
-    .footer { margin-top: 14px; font-size: 11px; opacity: .7; }
-    code { background: #111; border: 1px solid #222; border-radius: 4px; padding: 1px 4px; }
-    @media (max-width: 900px) {
-      .span6,.span4 { grid-column: span 12; }
-      .v { max-width: 62%; }
-    }
-  </style>
 </head>
-<body>
+<body class="vm-attest">
   <!-- {{NAV}} -->
   <div class="wrap">
     <h1>VaultMesh - Public Attestation (v1.1)</h1>

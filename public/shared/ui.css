@@ -264,3 +264,153 @@ a:hover {
   margin: 20px auto 0;
   opacity: 0.5;
 }
+
+/* ================================
+   ATTEST_v1_1 (shared skin)
+   ================================ */
+
+:root {
+  --vm-attest-bg: #050505;
+  --vm-attest-panel: #0b0b0b;
+  --vm-attest-text: #eaeaea;
+  --vm-attest-line: #222;
+  --vm-attest-line-soft: #1a1a1a;
+}
+
+.vm-attest {
+  margin: 0;
+  background: var(--vm-attest-bg);
+  color: var(--vm-attest-text);
+  font-family: var(--font-mono);
+}
+
+.vm-attest a {
+  color: var(--vm-attest-text);
+}
+
+.vm-attest .wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 18px;
+}
+
+.vm-attest h1 {
+  font-size: 18px;
+  margin: 0 0 8px;
+  letter-spacing: 0.02em;
+}
+
+.vm-attest .sub {
+  opacity: 0.8;
+  font-size: 12px;
+  margin-bottom: 14px;
+}
+
+.vm-attest .grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 10px;
+}
+
+.vm-attest .card {
+  border: 1px solid var(--vm-attest-line);
+  border-radius: 12px;
+  padding: 12px;
+  background: var(--vm-attest-panel);
+}
+
+.vm-attest .span6 {
+  grid-column: span 6;
+}
+
+.vm-attest .span4 {
+  grid-column: span 4;
+}
+
+.vm-attest .span12 {
+  grid-column: span 12;
+}
+
+.vm-attest .label {
+  font-size: 11px;
+  opacity: 0.8;
+  margin-bottom: 8px;
+}
+
+.vm-attest .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-top: 1px solid var(--vm-attest-line-soft);
+}
+
+.vm-attest .row:first-of-type {
+  border-top: none;
+}
+
+.vm-attest .k {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.vm-attest .v {
+  font-size: 12px;
+  opacity: 0.95;
+  max-width: 70%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vm-attest .badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid #333;
+}
+
+.vm-attest .PRESENT {
+  border-color: #2a2;
+}
+
+.vm-attest .MISSING {
+  border-color: #555;
+  opacity: 0.7;
+}
+
+.vm-attest .UNKNOWN {
+  border-color: #aa2;
+}
+
+.vm-attest .INVALID {
+  border-color: #a22;
+}
+
+.vm-attest .muted {
+  opacity: 0.75;
+}
+
+.vm-attest .footer {
+  margin-top: 14px;
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.vm-attest code {
+  background: #111;
+  border: 1px solid var(--vm-attest-line);
+  border-radius: 4px;
+  padding: 1px 4px;
+}
+
+@media (max-width: 900px) {
+  .vm-attest .span6,
+  .vm-attest .span4 {
+    grid-column: span 12;
+  }
+
+  .vm-attest .v {
+    max-width: 62%;
+  }
+}

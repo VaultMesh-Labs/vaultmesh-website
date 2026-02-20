@@ -40,6 +40,23 @@ inject_marker_file() {
   mv "$tmp" "$file"
 }
 
+write_manifest() {
+  (
+    cd dist
+    while IFS= read -r -d '' file; do
+      if [[ "$file" == *.html ]]; then
+        tmp="$(mktemp)"
+        sed -E 's#Manifest: sha256:[0-9a-fA-F]{64}#Manifest: sha256:UNSET#g' "$file" > "$tmp"
+        file_hash="$(hash_file "$tmp" | awk '{print $1}')"
+        rm -f "$tmp"
+        printf "%s  %s\n" "$file_hash" "$file"
+      else
+        hash_file "$file"
+      fi
+    done < <(find . -type f ! -name "MANIFEST.sha256" ! -name "BUILD_PROOF.txt" ! -name ".DS_Store" -print0 | sort -z) > MANIFEST.sha256
+  )
+}
+
 rm -rf dist
 mkdir -p dist
 rsync -av --delete --exclude '.DS_Store' public/ dist/
@@ -61,16 +78,23 @@ while IFS= read -r -d '' html_file; do
 done < <(find dist -type f -name "*.html" -print0)
 
 find dist -type f -name "*.html" -exec sed -i.bak "s/{{BUILD_ID}}/${BUILD_ID}/g" {} +
+find dist -type f -name "*.html" -exec sed -E -i.bak "s/Build: STATIC/Build: ${BUILD_ID}/g" {} +
 find dist -type f -name "*.bak" -delete
 
 find dist -exec touch -t 202001010000 {} +
 
-(
-  cd dist
-  while IFS= read -r -d '' file; do
-    hash_file "$file"
-  done < <(find . -type f ! -name "MANIFEST.sha256" ! -name "BUILD_PROOF.txt" ! -name ".DS_Store" -print0 | sort -z) > MANIFEST.sha256
-)
+write_manifest
+MANIFEST_SHA="$(hash_file dist/MANIFEST.sha256 | awk '{print $1}')"
+find dist -type f -name "*.html" -exec sed -E -i.bak "s#Manifest: sha256:(UNSET|[0-9a-fA-F]{64})#Manifest: sha256:${MANIFEST_SHA}#g" {} +
+find dist -type f -name "*.bak" -delete
+
+write_manifest
+FINAL_MANIFEST_SHA="$(hash_file dist/MANIFEST.sha256 | awk '{print $1}')"
+if [[ "${FINAL_MANIFEST_SHA}" != "${MANIFEST_SHA}" ]]; then
+  find dist -type f -name "*.html" -exec sed -E -i.bak "s#Manifest: sha256:(UNSET|[0-9a-fA-F]{64})#Manifest: sha256:${FINAL_MANIFEST_SHA}#g" {} +
+  find dist -type f -name "*.bak" -delete
+  write_manifest
+fi
 
 hash_file dist/MANIFEST.sha256 > dist/BUILD_PROOF.txt
 
