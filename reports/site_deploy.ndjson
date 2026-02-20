@@ -1,0 +1,1 @@
+{"ts":"2026-02-20T20:29:03Z","event":"SITE_DEPLOY","what":"NAV_FOOTER_v0","build":"23210e4","manifest_sha256":"sha256:4b5f68061b5bbf700944dee02b2b85db154c8c22d30989368feca24d24459b1f","verify":"curl+grep OK"}
