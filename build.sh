@@ -102,4 +102,4 @@ fi
 
 hash_file dist/MANIFEST.sha256 > dist/BUILD_PROOF.txt
 
-echo "BUILD_OK"
+echo "BUILD_OK=1"

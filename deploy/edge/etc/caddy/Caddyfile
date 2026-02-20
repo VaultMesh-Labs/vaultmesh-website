@@ -82,12 +82,11 @@ vaultmesh.org {
 	redir @proofpack_noslash /proof-pack/ 308
 
 	@origin_gateway {
-		path /proof-pack/lead* /proof-pack/intake /proof-pack/payment /proof-pack/status /support/ticket /support/update /support/resolve /support/close /support/reopen /support/status /verify/zk /proof/cc/heads /proof/cc/heads/latest /_hooks/mailgun
+		path /proof-pack/lead* /proof-pack/intake /proof-pack/payment /proof-pack/status /support/ticket /support/update /support/resolve /support/close /support/reopen /support/status /verify/zk /proof/cc/heads /proof/cc/heads/latest
 	}
 	handle @origin_gateway {
 		reverse_proxy {$ORIGIN_GATEWAY_UPSTREAM:10.44.0.3:9115}
 	}
-
 
 	# >>> VAULTMESH_DOCS_V0_1 >>>
 	handle_path /docs* {
@@ -164,6 +163,31 @@ mcp.vaultmesh.org {
 }
 # <<< VAULTMESH_INFRA_MCP_GATEWAY_V1 <<<
 
+hooks.vaultmesh.org {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+
+	@hooks_allowlist {
+		path /_hooks/mailgun /_hooks/n8n/* /webhook/* /webhook-test/*
+	}
+	handle @hooks_allowlist {
+		reverse_proxy {$VM_HOOKS_UPSTREAM} {
+			header_up Host {host}
+			header_up X-Forwarded-Proto {scheme}
+			header_up X-Forwarded-For {remote}
+		}
+	}
+
+	handle {
+		respond 404
+	}
+}
+
 
 # Temporary NetBird ingress proof endpoint
 # NetBird Caddyfile Snippet
@@ -219,10 +243,12 @@ cc.vaultmesh.org {
 		}
 	}
 
-	@cc_private_block {
+	@cc_console {
 		path /cc /cc/*
 	}
-	respond @cc_private_block "Not found" 404
+	handle @cc_console {
+		reverse_proxy {$CC_GATEWAY_UPSTREAM:10.44.0.3:9115}
+	}
 
 	respond "Not found" 404
 }

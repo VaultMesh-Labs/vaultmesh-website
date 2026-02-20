@@ -1,12 +1,15 @@
 SHELL := /usr/bin/env bash
 
-.PHONY: build deploy verify guard clean
+.PHONY: build deploy deploy-edge verify guard sot-lock sot-guard host-split-lock ui-skin-lock where clean
 
 build:
-	./build.sh
+	./scripts/build.sh
 
 deploy:
 	./deploy.sh
+
+deploy-edge:
+	@bash scripts/deploy_edge.sh
 
 verify:
 	@echo "Local:"
@@ -16,6 +19,23 @@ verify:
 
 guard:
 	@bash scripts/nav_footer_guard.sh
+
+sot-lock:
+	@bash scripts/sot_guard.sh --repo
+
+sot-guard:
+	@bash scripts/sot_guard.sh --repo
+
+host-split-lock:
+	@bash scripts/host_split_guard.sh --config deploy/edge/etc/caddy/Caddyfile
+
+ui-skin-lock:
+	@bash scripts/ui_skin_guard.sh --repo
+	@./scripts/build.sh >/dev/null
+	@bash scripts/ui_skin_guard.sh --dist
+
+where:
+	@bash scripts/where_is_vaultmesh.sh
 
 clean:
 	@find dist -mindepth 1 -delete 2>/dev/null || true

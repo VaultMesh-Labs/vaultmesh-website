@@ -1,0 +1,46 @@
+name: sot-lock-v0
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Caddy
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y caddy
+
+      - name: Build site
+        run: ./build.sh
+
+      - name: SOT guard (repo)
+        run: |
+          out="$(bash -euo pipefail scripts/sot_guard.sh --repo)"
+          printf '%s\n' "$out"
+          grep -q '^SOT_GUARD_OK=1$' <<<"$out"
+
+      - name: NAV+FOOTER guard
+        run: |
+          out="$(bash -euo pipefail scripts/nav_footer_guard.sh --dist)"
+          printf '%s\n' "$out"
+          grep -q '^NAV_FOOTER_GUARD_OK=1$' <<<"$out"
+
+      - name: UI skin guard
+        run: |
+          out="$(bash -euo pipefail scripts/ui_skin_guard.sh --dist)"
+          printf '%s\n' "$out"
+          grep -q '^UI_SKIN_GUARD_OK=1$' <<<"$out"
+
+      - name: Caddy guard (repo snapshot)
+        env:
+          VM_HOOKS_UPSTREAM: 127.0.0.1:65535
+        run: |
+          out="$(bash -euo pipefail scripts/caddy_guard.sh --repo-snapshot deploy/edge/etc/caddy/Caddyfile)"
+          printf '%s\n' "$out"
+          grep -q '^CADDY_GUARD_OK=1$' <<<"$out"

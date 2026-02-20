@@ -1,0 +1,136 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "${ROOT_DIR}"
+
+RC_PRECHECK=20
+RC_STAGING_UPLOAD=21
+RC_REMOTE_VERIFY=22
+RC_PROMOTE=23
+RC_CADDY_VALIDATE=24
+RC_CADDY_RELOAD=25
+RC_POSTCHECK=26
+RC_LEDGER_APPEND=27
+
+fail() {
+  local reason="$1"
+  local rc="$2"
+  printf 'DEPLOY_FAIL=%s\n' "$reason"
+  printf 'DEPLOY_RC=%s\n' "$rc"
+  exit "$rc"
+}
+
+hash_of_file() {
+  local file="$1"
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$file" | awk '{print $1}'
+    return
+  fi
+  if command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 "$file" | awk '{print $1}'
+    return
+  fi
+  fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+}
+
+MANIFEST="deploy/edge/MANIFEST.json"
+[[ -f "${MANIFEST}" ]] || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+
+json_get_first_string() {
+  local key="$1"
+  awk -F'"' -v key="$key" '$2 == key { print $4; exit }' "${MANIFEST}"
+}
+
+TARGET_HOST_ALIAS="$(json_get_first_string host_alias)"
+TARGET_PUBLIC_IP="$(json_get_first_string public_ip)"
+TARGET_ROOT="$(json_get_first_string root_path)"
+TARGET_CADDY="$(json_get_first_string caddyfile_path)"
+CANON_ROOT_REL="$(json_get_first_string root_dir)"
+CANON_CADDY_REL="$(json_get_first_string caddyfile)"
+
+[[ -n "${TARGET_HOST_ALIAS}" && -n "${TARGET_ROOT}" && -n "${TARGET_CADDY}" && -n "${CANON_ROOT_REL}" && -n "${CANON_CADDY_REL}" ]] || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+
+CANON_ROOT="${ROOT_DIR}/${CANON_ROOT_REL}"
+CANON_CADDY="${ROOT_DIR}/${CANON_CADDY_REL}"
+[[ -d "${CANON_ROOT}" ]] || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+[[ -f "${CANON_CADDY}" ]] || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+
+REMOTE_HOST="${REMOTE_HOST:-root@${TARGET_PUBLIC_IP}}"
+TS="$(date -u +%Y%m%dT%H%M%SZ)"
+REMOTE_STAGE="${TARGET_ROOT}.__staging_${TS}"
+REMOTE_OLD="${TARGET_ROOT}.__old_${TS}"
+REMOTE_SOT_TMP="/tmp/vaultmesh_sot_${TS}"
+
+./build.sh >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+
+rm -rf dist/site
+mkdir -p dist/site
+rsync -a --delete --exclude '.DS_Store' --exclude 'site/' dist/ dist/site/ || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+
+bash scripts/sot_guard.sh --pre >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+VM_HOOKS_UPSTREAM=127.0.0.1:65535 bash scripts/caddy_guard.sh --repo-snapshot deploy/edge/etc/caddy/Caddyfile >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+
+DRIFT_CHECK="$(rsync -rcni --delete \
+  --exclude 'attest/attest.json' \
+  --exclude 'attest/LATEST.txt' \
+  --exclude 'shared/' \
+  dist/site/ "${CANON_ROOT}/" || true)"
+if [[ -n "${DRIFT_CHECK}" ]]; then
+  fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+fi
+
+ssh "${REMOTE_HOST}" "mkdir -p '${REMOTE_STAGE}'" >/dev/null 2>&1 || fail "STAGING_UPLOAD_FAIL" "${RC_STAGING_UPLOAD}"
+rsync -azc --delete dist/site/ "${REMOTE_HOST}:${REMOTE_STAGE}/" >/dev/null 2>&1 || fail "STAGING_UPLOAD_FAIL" "${RC_STAGING_UPLOAD}"
+
+LOCAL_STAGE_MANIFEST_SHA="$(hash_of_file dist/site/MANIFEST.sha256)"
+REMOTE_STAGE_MANIFEST_SHA="$(ssh "${REMOTE_HOST}" "sha256sum '${REMOTE_STAGE}/MANIFEST.sha256' 2>/dev/null || shasum -a 256 '${REMOTE_STAGE}/MANIFEST.sha256'" | awk '{print $1}' || true)"
+
+if [[ -z "${REMOTE_STAGE_MANIFEST_SHA}" || "${LOCAL_STAGE_MANIFEST_SHA}" != "${REMOTE_STAGE_MANIFEST_SHA}" ]]; then
+  fail "REMOTE_VERIFY_FAIL" "${RC_REMOTE_VERIFY}"
+fi
+
+if ! ssh "${REMOTE_HOST}" "set -e; systemctl show caddy --property=Environment --value | tr ' ' '\n' | grep -q '^VM_HOOKS_UPSTREAM='"; then
+  fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+fi
+
+ssh "${REMOTE_HOST}" "set -euo pipefail; if [[ -e '${TARGET_ROOT}' ]]; then rm -rf '${REMOTE_OLD}'; mv '${TARGET_ROOT}' '${REMOTE_OLD}'; fi; mv '${REMOTE_STAGE}' '${TARGET_ROOT}'" >/dev/null 2>&1 || fail "PROMOTE_FAIL" "${RC_PROMOTE}"
+
+rsync -az "${CANON_CADDY}" "${REMOTE_HOST}:/tmp/vaultmesh_caddy_${TS}" >/dev/null 2>&1 || fail "CADDY_VALIDATE_FAIL" "${RC_CADDY_VALIDATE}"
+ssh "${REMOTE_HOST}" "cp '/tmp/vaultmesh_caddy_${TS}' '${TARGET_CADDY}'" >/dev/null 2>&1 || fail "CADDY_VALIDATE_FAIL" "${RC_CADDY_VALIDATE}"
+
+ssh "${REMOTE_HOST}" "caddy validate --config '${TARGET_CADDY}' >/dev/null" >/dev/null 2>&1 || fail "CADDY_VALIDATE_FAIL" "${RC_CADDY_VALIDATE}"
+ssh "${REMOTE_HOST}" "systemctl reload caddy" >/dev/null 2>&1 || fail "CADDY_RELOAD_FAIL" "${RC_CADDY_RELOAD}"
+bash scripts/caddy_guard.sh --live --repo-snapshot deploy/edge/etc/caddy/Caddyfile >/dev/null || fail "POSTCHECK_FAIL" "${RC_POSTCHECK}"
+
+ssh "${REMOTE_HOST}" "mkdir -p '${REMOTE_SOT_TMP}/scripts' '${REMOTE_SOT_TMP}/deploy/edge/etc/caddy' '${REMOTE_SOT_TMP}/deploy/edge/root/vaultmesh'" >/dev/null 2>&1 || fail "POSTCHECK_FAIL" "${RC_POSTCHECK}"
+rsync -az scripts/sot_guard.sh "${REMOTE_HOST}:${REMOTE_SOT_TMP}/scripts/sot_guard.sh" >/dev/null 2>&1 || fail "POSTCHECK_FAIL" "${RC_POSTCHECK}"
+rsync -az deploy/edge/MANIFEST.json "${REMOTE_HOST}:${REMOTE_SOT_TMP}/deploy/edge/MANIFEST.json" >/dev/null 2>&1 || fail "POSTCHECK_FAIL" "${RC_POSTCHECK}"
+rsync -az "${CANON_CADDY}" "${REMOTE_HOST}:${REMOTE_SOT_TMP}/deploy/edge/etc/caddy/Caddyfile" >/dev/null 2>&1 || fail "POSTCHECK_FAIL" "${RC_POSTCHECK}"
+rsync -az --delete "${CANON_ROOT}/" "${REMOTE_HOST}:${REMOTE_SOT_TMP}/deploy/edge/root/vaultmesh/" >/dev/null 2>&1 || fail "POSTCHECK_FAIL" "${RC_POSTCHECK}"
+
+POSTCHECK_OUTPUT="$(ssh "${REMOTE_HOST}" "cd '${REMOTE_SOT_TMP}' && bash scripts/sot_guard.sh --live" || true)"
+if ! printf '%s\n' "${POSTCHECK_OUTPUT}" | grep -q '^SOT_GUARD_OK=1$'; then
+  fail "POSTCHECK_FAIL" "${RC_POSTCHECK}"
+fi
+
+DEPLOY_ROOT_SHA="$(printf '%s\n' "${POSTCHECK_OUTPUT}" | awk -F= '/^SOT_ROOT_SHA256=/{print $2; exit}')"
+DEPLOY_CADDY_SHA="$(printf '%s\n' "${POSTCHECK_OUTPUT}" | awk -F= '/^SOT_CADDY_SHA256=/{print $2; exit}')"
+[[ -n "${DEPLOY_ROOT_SHA}" && -n "${DEPLOY_CADDY_SHA}" ]] || fail "POSTCHECK_FAIL" "${RC_POSTCHECK}"
+
+mkdir -p reports
+COMMIT_SHA="$(git rev-parse --short HEAD 2>/dev/null || echo 'unknown')"
+NOW_ISO="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+LEDGER_LINE="{\"ts\":\"${NOW_ISO}\",\"commit\":\"${COMMIT_SHA}\",\"root_sha\":\"${DEPLOY_ROOT_SHA}\",\"caddy_sha\":\"${DEPLOY_CADDY_SHA}\",\"host\":\"${TARGET_HOST_ALIAS}\",\"outcome\":\"ok\"}"
+printf '%s\n' "${LEDGER_LINE}" >> reports/site_deploy.ndjson || fail "LEDGER_APPEND_FAIL" "${RC_LEDGER_APPEND}"
+
+ssh "${REMOTE_HOST}" "rm -rf '${REMOTE_SOT_TMP}' '/tmp/vaultmesh_caddy_${TS}'" >/dev/null 2>&1 || true
+
+printf 'DEPLOY_HOST=%s\n' "${TARGET_HOST_ALIAS}"
+printf 'DEPLOY_ROOT=%s\n' "${TARGET_ROOT}"
+printf 'DEPLOY_CADDYFILE=%s\n' "${TARGET_CADDY}"
+printf 'DEPLOY_ROOT_SHA256=%s\n' "${DEPLOY_ROOT_SHA}"
+printf 'DEPLOY_CADDY_SHA256=%s\n' "${DEPLOY_CADDY_SHA}"
+printf 'DEPLOY_LEDGER_APPEND_OK=1\n'
+printf 'DEPLOY_OK=1\n'

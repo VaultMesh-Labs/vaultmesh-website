@@ -1,0 +1,22 @@
+{
+  "schema": "vaultmesh.site.sot_lock.v0",
+  "target": {
+    "host_alias": "edge-1",
+    "public_ip": "49.13.217.227",
+    "root_path": "/srv/web/vaultmesh",
+    "caddyfile_path": "/etc/caddy/Caddyfile"
+  },
+  "canonical": {
+    "root_dir": "deploy/edge/root/vaultmesh",
+    "caddyfile": "deploy/edge/etc/caddy/Caddyfile"
+  },
+  "allowlist": {
+    "mutable_paths": [
+      "attest/attest.json",
+      "attest/LATEST.txt"
+    ],
+    "mutable_symlinks": [
+      "shared"
+    ]
+  }
+}

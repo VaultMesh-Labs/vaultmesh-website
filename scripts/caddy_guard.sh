@@ -1,241 +1,406 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# CADDY_GUARD_v0
-# Goal: prevent drift where public routes become origin-dependent again.
+# CADDY_GUARD_v1
+# Enforces static-first vaultmesh.org + host split for mcp/hooks.
 
-CFG="${CADDYFILE_PATH:-/etc/caddy/Caddyfile}"
-SITE_ROOT_LOCK="${CADDY_SITE_ROOT_LOCK:-/srv/web/vaultmesh}"
-ALLOW_CC_REVERSE_PROXY="${CADDY_ALLOW_CC_REVERSE_PROXY:-1}"
-# Allowed context markers in the preceding lines for reverse_proxy within vaultmesh.org.
-ALLOWED_PROXY_CONTEXT_REGEX="${CADDY_ALLOWED_REVERSE_PROXY_CONTEXT_REGEX:-/cc/[*]|@origin_gateway}"
-
-# Exit codes (CI-friendly)
 RC_USAGE=2
-RC_MISSING=11
-RC_TOOLING=12
-RC_VALIDATE_FAIL=21
-RC_ROOT_LOCK_FAIL=31
-RC_STATIC_LOCK_FAIL=32
-RC_CC_PROXY_POLICY_FAIL=33
+RC_SNAPSHOT_MISSING=11
+RC_SNAPSHOT_LIVE_MISMATCH=12
+RC_PARSE_VALIDATE_FAIL=13
+RC_WILDCARD_PROXY=14
+RC_MISSING_HOST_BLOCKS=15
+RC_FORBIDDEN_MIX=16
 
-say() { printf "%s\n" "$*"; }
+MODE="repo"
+SNAPSHOT_CFG=""
+LIVE_CFG="${CADDYFILE_PATH:-/etc/caddy/Caddyfile}"
+SITE_ROOT_LOCK="${CADDY_SITE_ROOT_LOCK:-/srv/web/vaultmesh}"
+ORIGIN_UPSTREAM_TOKEN='{$ORIGIN_GATEWAY_UPSTREAM:10.44.0.3:9115}'
+HOOKS_UPSTREAM_TOKEN='{$VM_HOOKS_UPSTREAM}'
+REMOTE_HOST="${REMOTE_HOST:-}"
 
-need_cmd() {
-  command -v "$1" >/dev/null 2>&1 || { say "CADDY_GUARD_FAIL missing_tool=$1"; exit "$RC_TOOLING"; }
-}
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+MANIFEST_PATH="${ROOT_DIR}/deploy/edge/MANIFEST.json"
 
-sha256_file() {
-  local f="$1"
-  if command -v sha256sum >/dev/null 2>&1; then
-    printf "sha256:%s" "$(sha256sum "$f" | awk '{print $1}')"
-  elif command -v shasum >/dev/null 2>&1; then
-    printf "sha256:%s" "$(shasum -a 256 "$f" | awk '{print $1}')"
-  else
-    say "CADDY_GUARD_FAIL missing_tool=sha256sum_or_shasum"
-    exit "$RC_TOOLING"
-  fi
+fail() {
+  local reason="$1"
+  local rc="$2"
+  printf 'CADDY_GUARD_FAIL=%s\n' "${reason}"
+  printf 'CADDY_GUARD_RC=%s\n' "${rc}"
+  exit "${rc}"
 }
 
 usage() {
-  cat <<'EOF'
+  cat <<'USAGEEOF'
 Usage:
-  scripts/caddy_guard.sh [--config /path/to/Caddyfile]
+  bash scripts/caddy_guard.sh --repo-snapshot <path>
+  bash scripts/caddy_guard.sh --live --repo-snapshot <path>
 
-Env:
-  CADDYFILE_PATH=/etc/caddy/Caddyfile
-  CADDY_SITE_ROOT_LOCK=/srv/web/vaultmesh
-  CADDY_ALLOW_CC_REVERSE_PROXY=1|0
-  CADDY_ALLOWED_REVERSE_PROXY_CONTEXT_REGEX=/cc/[*]|@origin_gateway
-EOF
+Options:
+  --repo-snapshot <path>   canonical snapshot path (required)
+  --live                   compare live Caddyfile against snapshot and enforce policy
+  --config <path>          alias for --repo-snapshot
+USAGEEOF
 }
 
-if [[ "${1:-}" == "--help" ]]; then usage; exit 0; fi
-if [[ "${1:-}" == "--config" ]]; then
-  [[ -n "${2:-}" ]] || { usage; exit "$RC_USAGE"; }
-  CFG="$2"
-  shift 2
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --repo-snapshot|--config)
+      [[ -n "${2:-}" ]] || { usage; exit "${RC_USAGE}"; }
+      SNAPSHOT_CFG="$2"
+      shift 2
+      ;;
+    --live)
+      MODE="live"
+      shift
+      ;;
+    --help|-h)
+      usage
+      exit 0
+      ;;
+    *)
+      usage
+      exit "${RC_USAGE}"
+      ;;
+  esac
+done
+
+[[ -n "${SNAPSHOT_CFG}" ]] || { usage; exit "${RC_USAGE}"; }
+
+if [[ "${SNAPSHOT_CFG}" != /* ]]; then
+  SNAPSHOT_CFG="${ROOT_DIR}/${SNAPSHOT_CFG}"
 fi
-if [[ $# -ne 0 ]]; then usage; exit "$RC_USAGE"; fi
 
-[[ -f "$CFG" ]] || { say "CADDY_GUARD_MISSING file=$CFG"; exit "$RC_MISSING"; }
+[[ -f "${SNAPSHOT_CFG}" ]] || fail "SNAPSHOT_MISSING" "${RC_SNAPSHOT_MISSING}"
 
-need_cmd caddy
-need_cmd awk
-need_cmd grep
-
-say "CADDY_GUARD_PRESENT=1"
-CFG_SHA="$(sha256_file "$CFG")"
-say "CADDY_GUARD_SHA256=$CFG_SHA"
-
-if ! caddy validate --config "$CFG" >/dev/null 2>&1; then
-  say "CADDY_GUARD_INVALID_CONFIG=1"
-  say "CADDY_GUARD_FAIL reason=validate_failed"
-  exit "$RC_VALIDATE_FAIL"
+if [[ -z "${REMOTE_HOST}" && -f "${MANIFEST_PATH}" ]]; then
+  MANIFEST_IP="$(awk -F'"' '$2=="public_ip" {print $4; exit}' "${MANIFEST_PATH}")"
+  if [[ -n "${MANIFEST_IP}" ]]; then
+    REMOTE_HOST="root@${MANIFEST_IP}"
+  fi
 fi
-say "CADDY_GUARD_VALIDATE_OK=1"
+
+need_cmd() {
+  command -v "$1" >/dev/null 2>&1 || return 1
+}
+
+hash_of_file() {
+  local f="$1"
+  if need_cmd sha256sum; then
+    sha256sum "$f" | awk '{print $1}'
+    return
+  fi
+
+  if need_cmd shasum; then
+    shasum -a 256 "$f" | awk '{print $1}'
+    return
+  fi
+
+  fail "PARSE_VALIDATE_FAIL" "${RC_PARSE_VALIDATE_FAIL}"
+}
+
+ssh_escape() {
+  printf "%s" "$1" | sed "s/'/'\"'\"'/g"
+}
+
+extract_block() {
+  local cfg="$1"
+  local host="$2"
+  local out="$3"
+
+  local host_re
+  host_re="$(printf '%s' "${host}" | sed -e 's/[.[\*^$()+?{}|]/\\&/g')"
+
+  awk -v host_re="${host_re}" '
+    function delta(s, t, o, c) {
+      t=s; o=gsub(/\{/, "{", t)
+      t=s; c=gsub(/\}/, "}", t)
+      return o-c
+    }
+    BEGIN { inblk=0; depth=0 }
+    {
+      line=$0
+      if (!inblk && line ~ "^[[:space:]]*" host_re "[[:space:]]*\\{") {
+        inblk=1
+      }
+      if (inblk) {
+        print line
+        depth += delta(line)
+        if (depth <= 0) {
+          exit
+        }
+      }
+    }
+  ' "${cfg}" > "${out}"
+}
+
+validate_repo_cfg() {
+  local cfg="$1"
+
+  [[ -n "${VM_HOOKS_UPSTREAM:-}" ]] || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+
+  if need_cmd caddy; then
+    VM_HOOKS_UPSTREAM="${VM_HOOKS_UPSTREAM}" caddy validate --config "${cfg}" >/dev/null 2>&1 || fail "PARSE_VALIDATE_FAIL" "${RC_PARSE_VALIDATE_FAIL}"
+    return
+  fi
+
+  [[ -n "${REMOTE_HOST}" ]] || fail "PARSE_VALIDATE_FAIL" "${RC_PARSE_VALIDATE_FAIL}"
+  need_cmd ssh || fail "PARSE_VALIDATE_FAIL" "${RC_PARSE_VALIDATE_FAIL}"
+
+  local env_escaped
+  env_escaped="$(ssh_escape "${VM_HOOKS_UPSTREAM}")"
+  ssh "${REMOTE_HOST}" "VM_HOOKS_UPSTREAM='${env_escaped}' caddy validate --adapter caddyfile --config -" < "${cfg}" >/dev/null 2>&1 || fail "PARSE_VALIDATE_FAIL" "${RC_PARSE_VALIDATE_FAIL}"
+}
+
+validate_live_cfg() {
+  local live_cfg="$1"
+
+  if [[ -f "${live_cfg}" ]] && need_cmd caddy; then
+    caddy validate --config "${live_cfg}" >/dev/null 2>&1 || fail "PARSE_VALIDATE_FAIL" "${RC_PARSE_VALIDATE_FAIL}"
+    return
+  fi
+
+  [[ -n "${REMOTE_HOST}" ]] || fail "PARSE_VALIDATE_FAIL" "${RC_PARSE_VALIDATE_FAIL}"
+  need_cmd ssh || fail "PARSE_VALIDATE_FAIL" "${RC_PARSE_VALIDATE_FAIL}"
+
+  ssh "${REMOTE_HOST}" "caddy validate --config '${live_cfg}'" >/dev/null 2>&1 || fail "PARSE_VALIDATE_FAIL" "${RC_PARSE_VALIDATE_FAIL}"
+}
+
+read_live_cfg_local_copy() {
+  local live_cfg="$1"
+  local out="$2"
+
+  if [[ -f "${live_cfg}" ]]; then
+    cp "${live_cfg}" "${out}"
+    return
+  fi
+
+  [[ -n "${REMOTE_HOST}" ]] || fail "PARSE_VALIDATE_FAIL" "${RC_PARSE_VALIDATE_FAIL}"
+  need_cmd ssh || fail "PARSE_VALIDATE_FAIL" "${RC_PARSE_VALIDATE_FAIL}"
+
+  ssh "${REMOTE_HOST}" "cat '${live_cfg}'" > "${out}" || fail "PARSE_VALIDATE_FAIL" "${RC_PARSE_VALIDATE_FAIL}"
+}
+
+check_runtime_hooks_env_live() {
+  if [[ -f "${LIVE_CFG}" ]] && need_cmd systemctl; then
+    systemctl show caddy --property=Environment --value | tr ' ' '\n' | grep -q '^VM_HOOKS_UPSTREAM=' || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+    return
+  fi
+
+  [[ -n "${REMOTE_HOST}" ]] || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+  need_cmd ssh || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+
+  ssh "${REMOTE_HOST}" "set -e; systemctl show caddy --property=Environment --value | tr ' ' '\\n' | grep -q '^VM_HOOKS_UPSTREAM='" >/dev/null 2>&1 || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+}
+
+policy_check_vault() {
+  local block="$1"
+
+  grep -Eq "^[[:space:]]*root[[:space:]]+\*[[:space:]]+${SITE_ROOT_LOCK}([[:space:]]|$)" "${block}" || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+  grep -Eq "^[[:space:]]*file_server([[:space:]]|$)" "${block}" || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+
+  if grep -Eq '/_hooks/|/webhook' "${block}"; then
+    fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+  fi
+
+  if grep -Eq 'reverse_proxy[[:space:]]+/\*' "${block}"; then
+    fail "WILDCARD_PROXY" "${RC_WILDCARD_PROXY}"
+  fi
+
+  local required_paths=(
+    '/proof-pack/lead*'
+    '/proof-pack/intake'
+    '/proof-pack/payment'
+    '/proof-pack/status'
+    '/support/ticket'
+    '/support/update'
+    '/support/resolve'
+    '/support/close'
+    '/support/reopen'
+    '/support/status'
+    '/verify/zk'
+    '/proof/cc/heads'
+    '/proof/cc/heads/latest'
+  )
+
+  local p
+  for p in "${required_paths[@]}"; do
+    grep -Fq "${p}" "${block}" || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+  done
+
+  grep -Eq '^\s*handle\s+@origin_gateway\s*\{' "${block}" || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+  grep -Fq "${ORIGIN_UPSTREAM_TOKEN}" "${block}" || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+
+  if ! awk '
+    function d(s,t,o,c){t=s;o=gsub(/\{/,"{",t);t=s;c=gsub(/\}/,"}",t);return o-c}
+    BEGIN{inh=0;depth=0;name="";bad=0;rp=0}
+    {
+      line=$0
+      if (!inh && line ~ /^[[:space:]]*handle[[:space:]]+@[A-Za-z0-9_]+[[:space:]]*\{/) {
+        tmp=line
+        sub(/^[[:space:]]*handle[[:space:]]+@/, "", tmp)
+        sub(/[[:space:]]*\{.*/, "", tmp)
+        inh=1
+        name=tmp
+        depth=d(line)
+      }
+      if (inh) {
+        if (line ~ /reverse_proxy/) { rp++; if (name != "origin_gateway") bad=1 }
+        depth += d(line)
+        if (depth <= 0) { inh=0; name="" }
+        next
+      }
+      if (line ~ /reverse_proxy/) { rp++; bad=1 }
+    }
+    END {
+      if (rp==0) exit 2
+      if (bad) exit 1
+      exit 0
+    }
+  ' "${block}"; then
+    rc=$?
+    if [[ "${rc}" -eq 2 ]]; then
+      fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+    fi
+    fail "WILDCARD_PROXY" "${RC_WILDCARD_PROXY}"
+  fi
+
+  printf 'CADDY_POLICY_STATIC_OK=1\n'
+  printf 'CADDY_POLICY_ALLOWLIST_OK=1\n'
+  printf 'HOOKS_NOT_ON_VAULTMESH=1\n'
+}
+
+policy_check_hooks() {
+  local block="$1"
+
+  grep -Eq '^\s*@hooks_allowlist\s*\{' "${block}" || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+
+  local required_hook_paths=(
+    '/_hooks/mailgun'
+    '/_hooks/n8n/*'
+    '/webhook/*'
+    '/webhook-test/*'
+  )
+
+  local p
+  for p in "${required_hook_paths[@]}"; do
+    grep -Fq "${p}" "${block}" || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+  done
+
+  grep -Fq "reverse_proxy ${HOOKS_UPSTREAM_TOKEN}" "${block}" || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+  grep -Eq '^\s*handle\s*\{\s*$' "${block}" || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+  grep -Eq '^\s*respond\s+404\s*$|^\s*respond\s+"Not found"\s+404\s*$' "${block}" || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+
+  if grep -Eq "^[[:space:]]*root[[:space:]]+\*[[:space:]]+${SITE_ROOT_LOCK}([[:space:]]|$)" "${block}"; then
+    fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+  fi
+
+  if ! awk '
+    function d(s,t,o,c){t=s;o=gsub(/\{/,"{",t);t=s;c=gsub(/\}/,"}",t);return o-c}
+    BEGIN{inh=0;depth=0;name="";bad=0;rp=0}
+    {
+      line=$0
+      if (!inh && line ~ /^[[:space:]]*handle[[:space:]]+@[A-Za-z0-9_]+[[:space:]]*\{/) {
+        tmp=line
+        sub(/^[[:space:]]*handle[[:space:]]+@/, "", tmp)
+        sub(/[[:space:]]*\{.*/, "", tmp)
+        inh=1
+        name=tmp
+        depth=d(line)
+      } else if (!inh && line ~ /^[[:space:]]*handle[[:space:]]*\{/) {
+        inh=1
+        name="default"
+        depth=d(line)
+      }
+      if (inh) {
+        if (line ~ /reverse_proxy/) { rp++; if (name != "hooks_allowlist") bad=1 }
+        depth += d(line)
+        if (depth <= 0) { inh=0; name="" }
+        next
+      }
+      if (line ~ /reverse_proxy/) { rp++; bad=1 }
+    }
+    END{
+      if (rp==0) exit 2
+      if (bad) exit 1
+      exit 0
+    }
+  ' "${block}"; then
+    rc=$?
+    if [[ "${rc}" -eq 2 ]]; then
+      fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+    fi
+    fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+  fi
+
+  printf 'HOOKS_HOST_PRESENT=1\n'
+  printf 'HOOKS_ALLOWLIST_ONLY=1\n'
+}
+
+policy_check_mcp() {
+  local block="$1"
+
+  grep -q 'reverse_proxy' "${block}" || fail "MISSING_HOST_BLOCKS" "${RC_MISSING_HOST_BLOCKS}"
+  if grep -Eq "^[[:space:]]*root[[:space:]]+\*[[:space:]]+${SITE_ROOT_LOCK}([[:space:]]|$)" "${block}"; then
+    fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+  fi
+}
+
+printf 'CADDY_GUARD_PRESENT=1\n'
+
+SNAPSHOT_SHA="$(hash_of_file "${SNAPSHOT_CFG}")"
+
+if [[ "${MODE}" == "repo" ]]; then
+  validate_repo_cfg "${SNAPSHOT_CFG}"
+  printf 'CADDYFILE_SHA256=sha256:%s\n' "${SNAPSHOT_SHA}"
+else
+  validate_live_cfg "${LIVE_CFG}"
+
+  LIVE_TMP="$(mktemp)"
+  read_live_cfg_local_copy "${LIVE_CFG}" "${LIVE_TMP}"
+  LIVE_SHA="$(hash_of_file "${LIVE_TMP}")"
+
+  printf 'CADDYFILE_SHA256=sha256:%s\n' "${LIVE_SHA}"
+  printf 'CADDY_SNAPSHOT_SHA256=sha256:%s\n' "${SNAPSHOT_SHA}"
+
+  if [[ "${LIVE_SHA}" != "${SNAPSHOT_SHA}" ]]; then
+    rm -f "${LIVE_TMP}"
+    fail "SNAPSHOT_LIVE_MISMATCH" "${RC_SNAPSHOT_LIVE_MISMATCH}"
+  fi
+
+  check_runtime_hooks_env_live
+  printf 'HOOKS_UPSTREAM_ENV_PRESENT=1\n'
+
+  TARGET_CFG="${LIVE_TMP}"
+fi
+
+if [[ "${MODE}" == "repo" ]]; then
+  TARGET_CFG="${SNAPSHOT_CFG}"
+  if [[ -n "${VM_HOOKS_UPSTREAM:-}" ]]; then
+    printf 'HOOKS_UPSTREAM_ENV_PRESENT=1\n'
+  else
+    fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+  fi
+fi
 
 VAULT_TMP="$(mktemp)"
-awk '
-  BEGIN{inblk=0; depth=0}
-  {
-    line=$0
-    if (!inblk && line ~ /^[[:space:]]*vaultmesh\.org[[:space:]]*\{/) {
-      inblk=1
-    }
-    if (inblk) {
-      print line
-      opens=gsub(/\{/, "{", line)
-      closes=gsub(/\}/, "}", line)
-      depth += opens - closes
-      if (depth<=0) exit
-    }
-  }
-' "$CFG" > "$VAULT_TMP"
+HOOKS_TMP="$(mktemp)"
+MCP_TMP="$(mktemp)"
 
-if [[ ! -s "$VAULT_TMP" ]]; then
-  rm -f "$VAULT_TMP"
-  say "CADDY_GUARD_ROOT_LOCK_FAIL=1"
-  say "CADDY_GUARD_FAIL reason=vaultmesh_block_not_found"
-  exit "$RC_ROOT_LOCK_FAIL"
-fi
+extract_block "${TARGET_CFG}" "vaultmesh.org" "${VAULT_TMP}"
+extract_block "${TARGET_CFG}" "hooks.vaultmesh.org" "${HOOKS_TMP}"
+extract_block "${TARGET_CFG}" "mcp.vaultmesh.org" "${MCP_TMP}"
 
-if ! grep -Eq "^[[:space:]]*root[[:space:]]+\\*[[:space:]]+${SITE_ROOT_LOCK}([[:space:]]|$)" "$VAULT_TMP"; then
-  rm -f "$VAULT_TMP"
-  say "CADDY_GUARD_ROOT_LOCK_FAIL=1"
-  say "CADDY_GUARD_FAIL reason=root_lock_missing expected=$SITE_ROOT_LOCK"
-  exit "$RC_ROOT_LOCK_FAIL"
-fi
-say "CADDY_GUARD_ROOT_LOCK_OK=1"
+[[ -s "${VAULT_TMP}" ]] || { rm -f "${VAULT_TMP}" "${HOOKS_TMP}" "${MCP_TMP}"; fail "MISSING_HOST_BLOCKS" "${RC_MISSING_HOST_BLOCKS}"; }
+[[ -s "${HOOKS_TMP}" ]] || { rm -f "${VAULT_TMP}" "${HOOKS_TMP}" "${MCP_TMP}"; fail "MISSING_HOST_BLOCKS" "${RC_MISSING_HOST_BLOCKS}"; }
+[[ -s "${MCP_TMP}" ]] || { rm -f "${VAULT_TMP}" "${HOOKS_TMP}" "${MCP_TMP}"; fail "MISSING_HOST_BLOCKS" "${RC_MISSING_HOST_BLOCKS}"; }
 
-if ! awk '
-  function brace_delta(s, t, opens, closes) {
-    t=s
-    opens=gsub(/\{/, "{", t)
-    t=s
-    closes=gsub(/\}/, "}", t)
-    return opens-closes
-  }
-  BEGIN{
-    bad=0
-    in_def=0
-    in_handle=0
-    in_handle_path=0
-    def_depth=0
-    handle_depth=0
-    handle_path_depth=0
-    handle_proxy=0
-    handle_path_proxy=0
-    def_name=""
-    handle_name=""
-    forbidden="(^|[[:space:]])/(proof-pack|support)(/\\*|/)?([[:space:]]|$)"
-  }
-  {
-    line=$0
-    if (!in_def && match(line, /^[[:space:]]*@([A-Za-z0-9_]+)[[:space:]]*\{/, m)) {
-      in_def=1
-      def_name=m[1]
-      def_depth=brace_delta(line)
-      def_body[def_name]=def_body[def_name] line "\n"
-      next
-    }
-    if (in_def) {
-      def_body[def_name]=def_body[def_name] line "\n"
-      def_depth += brace_delta(line)
-      if (def_depth<=0) {
-        in_def=0
-        def_name=""
-      }
-      next
-    }
+policy_check_vault "${VAULT_TMP}"
+policy_check_hooks "${HOOKS_TMP}"
+policy_check_mcp "${MCP_TMP}"
 
-    if (!in_handle && match(line, /^[[:space:]]*handle[[:space:]]+@([A-Za-z0-9_]+)[[:space:]]*\{/, m)) {
-      in_handle=1
-      handle_name=m[1]
-      handle_depth=brace_delta(line)
-      handle_proxy=0
-      next
-    }
-    if (in_handle) {
-      if (line ~ /reverse_proxy/) handle_proxy=1
-      handle_depth += brace_delta(line)
-      if (handle_depth<=0) {
-        if (handle_proxy) {
-          proxy_handle[++proxy_count]=handle_name
-        }
-        in_handle=0
-        handle_name=""
-      }
-      next
-    }
+printf 'CADDY_POLICY_HOST_SPLIT_OK=1\n'
+printf 'CADDY_GUARD_OK=1\n'
 
-    if (!in_handle_path && match(line, /^[[:space:]]*handle_path[[:space:]]+(\/proof-pack\/\*|\/support\/\*)[[:space:]]*\{/, m)) {
-      in_handle_path=1
-      handle_path_name=m[1]
-      handle_path_depth=brace_delta(line)
-      handle_path_proxy=0
-      next
-    }
-    if (in_handle_path) {
-      if (line ~ /reverse_proxy/) handle_path_proxy=1
-      handle_path_depth += brace_delta(line)
-      if (handle_path_depth<=0) {
-        if (handle_path_proxy) bad=1
-        in_handle_path=0
-        handle_path_name=""
-      }
-      next
-    }
-  }
-  END{
-    for (i=1; i<=proxy_count; i++) {
-      name=proxy_handle[i]
-      body=def_body[name]
-      if (body ~ forbidden) bad=1
-    }
-    exit(bad?1:0)
-  }
-' "$VAULT_TMP"; then
-  rm -f "$VAULT_TMP"
-  say "CADDY_GUARD_PUBLIC_PROXY_FAIL=1"
-  say "CADDY_GUARD_FAIL reason=public_static_paths_proxy_detected"
-  exit "$RC_STATIC_LOCK_FAIL"
-fi
-say "CADDY_GUARD_PROOF_PACK_STATIC_OK=1"
-say "CADDY_GUARD_SUPPORT_STATIC_OK=1"
-
-if [[ "$ALLOW_CC_REVERSE_PROXY" == "1" ]]; then
-  if ! awk -v allowed="$ALLOWED_PROXY_CONTEXT_REGEX" '
-    BEGIN{bad=0}
-    {line[NR]=$0}
-    END{
-      for(i=1;i<=NR;i++){
-        if(line[i] ~ /reverse_proxy/){
-          ok=0
-          for(j=i-8;j<=i;j++){
-            if(j>=1 && line[j] ~ allowed){ok=1}
-          }
-          if(!ok) bad=1
-        }
-      }
-      exit(bad?1:0)
-    }
-  ' "$VAULT_TMP"; then
-    rm -f "$VAULT_TMP"
-    say "CADDY_GUARD_CC_PROXY_POLICY_FAIL=1"
-    say "CADDY_GUARD_FAIL reason=reverse_proxy_found_outside_allowed_context"
-    exit "$RC_CC_PROXY_POLICY_FAIL"
-  fi
-  say "CADDY_GUARD_CC_PROXY_OK=1"
-else
-  if grep -n "reverse_proxy" "$VAULT_TMP" >/dev/null 2>&1; then
-    rm -f "$VAULT_TMP"
-    say "CADDY_GUARD_CC_PROXY_POLICY_FAIL=1"
-    say "CADDY_GUARD_FAIL reason=reverse_proxy_forbidden"
-    exit "$RC_CC_PROXY_POLICY_FAIL"
-  fi
-  say "CADDY_GUARD_CC_PROXY_OK=1"
-fi
-
-rm -f "$VAULT_TMP"
-say "CADDY_GUARD_OK=1"
+rm -f "${VAULT_TMP}" "${HOOKS_TMP}" "${MCP_TMP}" "${LIVE_TMP:-}"

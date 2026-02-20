@@ -1,0 +1,20 @@
+name: host-split-guard
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Caddy
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y caddy
+
+      - name: Host split lock guard
+        run: bash -euo pipefail scripts/host_split_guard.sh --config deploy/edge/etc/caddy/Caddyfile
