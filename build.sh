@@ -62,7 +62,14 @@ mkdir -p dist
 rsync -av --delete --exclude '.DS_Store' public/ dist/
 find dist -name '.DS_Store' -delete
 
-BUILD_ID=$(git rev-parse --short HEAD 2>/dev/null || echo "dev")
+if [[ -n "${BUILD_ID_OVERRIDE:-}" ]]; then
+  BUILD_ID="${BUILD_ID_OVERRIDE}"
+else
+  BUILD_ID="$(git log -n 1 --format=%h -- public 2>/dev/null || true)"
+  if [[ -z "${BUILD_ID}" ]]; then
+    BUILD_ID="$(git rev-parse --short HEAD 2>/dev/null || echo "dev")"
+  fi
+fi
 # Inject canonical attestation panel partial only when wrapper placeholder is present.
 if [[ -f dist/attest/index.html && -f public/shared/partials/attest_panel.html ]] && grep -q "{{ATTEST_PANEL}}" dist/attest/index.html; then
   sed '/{{ATTEST_PANEL}}/{

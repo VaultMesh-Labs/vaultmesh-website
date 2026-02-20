@@ -218,7 +218,6 @@ policy_check_vault() {
     '/support/resolve'
     '/support/close'
     '/support/reopen'
-    '/support/status'
     '/verify/zk'
     '/proof/cc/heads'
     '/proof/cc/heads/latest'
@@ -231,6 +230,26 @@ policy_check_vault() {
 
   grep -Eq '^\s*handle\s+@origin_gateway\s*\{' "${block}" || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
   grep -Fq "${ORIGIN_UPSTREAM_TOKEN}" "${block}" || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+
+  # Dynamic support status is quarantined to hooks host, never proxied on vaultmesh.org.
+  if awk '
+    BEGIN { in_matcher=0; depth=0; bad=0 }
+    function d(s,t,o,c){t=s;o=gsub(/\{/,"{",t);t=s;c=gsub(/\}/,"}",t);return o-c}
+    {
+      line=$0
+      if (!in_matcher && line ~ /^[[:space:]]*@origin_gateway[[:space:]]*\{/) {
+        in_matcher=1
+        depth=d(line)
+      } else if (in_matcher) {
+        if (line ~ /\/support\/status/) bad=1
+        depth += d(line)
+        if (depth <= 0) in_matcher=0
+      }
+    }
+    END { exit(bad?0:1) }
+  ' "${block}"; then
+    fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+  fi
 
   if ! awk '
     function d(s,t,o,c){t=s;o=gsub(/\{/,"{",t);t=s;c=gsub(/\}/,"}",t);return o-c}
@@ -281,6 +300,7 @@ policy_check_hooks() {
     '/_hooks/n8n/*'
     '/webhook/*'
     '/webhook-test/*'
+    '/support/status'
   )
 
   local p

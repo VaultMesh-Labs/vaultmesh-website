@@ -82,7 +82,7 @@ vaultmesh.org {
 	redir @proofpack_noslash /proof-pack/ 308
 
 	@origin_gateway {
-		path /proof-pack/lead* /proof-pack/intake /proof-pack/payment /proof-pack/status /support/ticket /support/update /support/resolve /support/close /support/reopen /support/status /verify/zk /proof/cc/heads /proof/cc/heads/latest
+		path /proof-pack/lead* /proof-pack/intake /proof-pack/payment /proof-pack/status /support/ticket /support/update /support/resolve /support/close /support/reopen /verify/zk /proof/cc/heads /proof/cc/heads/latest
 	}
 	handle @origin_gateway {
 		reverse_proxy {$ORIGIN_GATEWAY_UPSTREAM:10.44.0.3:9115}
@@ -173,7 +173,7 @@ hooks.vaultmesh.org {
 	}
 
 	@hooks_allowlist {
-		path /_hooks/mailgun /_hooks/n8n/* /webhook/* /webhook-test/*
+		path /_hooks/mailgun /_hooks/n8n/* /webhook/* /webhook-test/* /support/status
 	}
 	handle @hooks_allowlist {
 		reverse_proxy {$VM_HOOKS_UPSTREAM} {
