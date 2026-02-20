@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>VaultMesh - Public Attestation (v1.1)</title>
+  <link rel="stylesheet" href="/shared/ui.css?v=bone-v04" />
   <style>
     :root { color-scheme: dark; }
     body { margin:0; background:#050505; color:#eaeaea; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
@@ -35,6 +36,7 @@
   </style>
 </head>
 <body>
+  <!-- {{NAV}} -->
   <div class="wrap">
     <h1>VaultMesh - Public Attestation (v1.1)</h1>
     <div class="sub">Static bundle. <span class="badge MISSING">MISSING</span> is allowed; <span class="badge INVALID">INVALID</span> fails build gate. Evidence is digest-only.</div>
@@ -83,6 +85,7 @@
       Data source: <code>/attest/attest.json</code> and <code>/attest/LATEST.txt</code> (static). No origin API calls.
     </div>
   </div>
+  <!-- {{FOOTER}} -->
 
   <script>
     function esc(s) {

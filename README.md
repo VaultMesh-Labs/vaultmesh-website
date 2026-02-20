@@ -17,6 +17,8 @@ public/
     ROOT_HISTORY.sig
   shared/
     ui.css
+    nav.html
+    footer.html
     partials/
       attest_panel.html
 ```
@@ -37,6 +39,7 @@ Historical snapshots are not stored in `public/`; history is preserved in Git co
 
 The script also replaces `{{BUILD_ID}}` in HTML files with `git rev-parse --short HEAD`.
 `dist/attest/index.html` is built by injecting `public/shared/partials/attest_panel.html` into the `{{ATTEST_PANEL}}` placeholder.
+The script injects `public/shared/nav.html` and `public/shared/footer.html` into every page via `<!-- {{NAV}} -->` and `<!-- {{FOOTER}} -->` markers.
 
 ## Deploy
 

@@ -16,6 +16,30 @@ hash_file() {
   exit 1
 }
 
+inject_marker_file() {
+  local marker="$1"
+  local fragment="$2"
+  local file="$3"
+  local tmp
+
+  if ! grep -Fq "$marker" "$file"; then
+    return
+  fi
+
+  tmp="${file}.tmp"
+  awk -v marker="$marker" -v fragment="$fragment" '
+    index($0, marker) > 0 {
+      while ((getline line < fragment) > 0) {
+        print line
+      }
+      close(fragment)
+      next
+    }
+    { print }
+  ' "$file" > "$tmp"
+  mv "$tmp" "$file"
+}
+
 rm -rf dist
 mkdir -p dist
 rsync -av --delete --exclude '.DS_Store' public/ dist/
@@ -30,6 +54,11 @@ if [[ -f dist/attest/index.html && -f public/shared/partials/attest_panel.html ]
   }' dist/attest/index.html > dist/attest/index.html.tmp
   mv dist/attest/index.html.tmp dist/attest/index.html
 fi
+
+while IFS= read -r -d '' html_file; do
+  inject_marker_file "<!-- {{NAV}} -->" "public/shared/nav.html" "$html_file"
+  inject_marker_file "<!-- {{FOOTER}} -->" "public/shared/footer.html" "$html_file"
+done < <(find dist -type f -name "*.html" -print0)
 
 find dist -type f -name "*.html" -exec sed -i.bak "s/{{BUILD_ID}}/${BUILD_ID}/g" {} +
 find dist -type f -name "*.bak" -delete
