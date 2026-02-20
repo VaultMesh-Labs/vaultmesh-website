@@ -22,8 +22,8 @@ rsync -av --delete --exclude '.DS_Store' public/ dist/
 find dist -name '.DS_Store' -delete
 
 BUILD_ID=$(git rev-parse --short HEAD 2>/dev/null || echo "dev")
-# Inject canonical attestation panel partial into thin wrapper page.
-if [[ -f dist/attest/index.html && -f public/shared/partials/attest_panel.html ]]; then
+# Inject canonical attestation panel partial only when wrapper placeholder is present.
+if [[ -f dist/attest/index.html && -f public/shared/partials/attest_panel.html ]] && grep -q "{{ATTEST_PANEL}}" dist/attest/index.html; then
   sed '/{{ATTEST_PANEL}}/{
     r public/shared/partials/attest_panel.html
     d
