@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>VaultMesh Proof Verify</title>
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/shared/ui.css?v=bone-v03">
+</head>
+<body>
+<div class="wrap">
+  <div class="shell">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">VAULTMESH</div>
+        <span class="badge">verify</span>
+      </div>
+      <nav class="nav">
+        <a href="/">Home</a>
+        <a href="/proof-pack/">Proof Pack</a>
+        <a href="/support/">Support</a>
+      </nav>
+    </div>
+
+    <div class="main">
+      <section class="panel">
+        <h1>Verify Proof Seal</h1>
+        <p class="lede">Operational verify surface. Submit <code>PUBLIC.json</code> and <code>PROOF.b64</code> to <code>/verify/zk</code>.</p>
+      </section>
+
+      <section class="card">
+        <label for="publicJson">PUBLIC.json</label>
+        <textarea id="publicJson" rows="10"></textarea>
+      </section>
+
+      <section class="card">
+        <label for="proofB64">PROOF.b64</label>
+        <textarea id="proofB64" rows="8"></textarea>
+      </section>
+
+      <section class="card">
+        <div class="actions">
+          <button class="btn btn-primary" id="verifyBtn" type="button">Verify</button>
+        </div>
+        <div class="kv-grid" style="margin-top:12px">
+          <div class="k">outcome</div><div id="resultOutcome">-</div>
+          <div class="k">request_id</div><div id="resultRequestID">-</div>
+          <div class="k">http_status</div><div id="resultHTTPStatus">-</div>
+        </div>
+        <pre id="resultBody" class="code" style="margin-top:10px"></pre>
+      </section>
+    </div>
+
+    <div class="footer">
+      <div>&copy; VaultMesh &mdash; machine-verifiable evidence</div>
+      <div>surface=verify</div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var btn = document.getElementById("verifyBtn");
+  btn.addEventListener("click", async function () {
+    var publicRaw = document.getElementById("publicJson").value;
+    var proofRaw = document.getElementById("proofB64").value.trim();
+    var payload = { public_json: publicRaw, proof_b64: proofRaw };
+    var statusNode = document.getElementById("resultHTTPStatus");
+    var outcomeNode = document.getElementById("resultOutcome");
+    var requestNode = document.getElementById("resultRequestID");
+    var bodyNode = document.getElementById("resultBody");
+    try {
+      var res = await fetch("/verify/zk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      var data;
+      try { data = await res.json(); } catch (_) { data = { error: "non-json response" }; }
+      statusNode.textContent = String(res.status);
+      outcomeNode.textContent = data.outcome || "-";
+      requestNode.textContent = data.request_id || "-";
+      bodyNode.textContent = JSON.stringify(data, null, 2);
+    } catch (err) {
+      statusNode.textContent = "0";
+      outcomeNode.textContent = "NETWORK_ERROR";
+      requestNode.textContent = "-";
+      bodyNode.textContent = JSON.stringify({ error: String(err) }, null, 2);
+    }
+  });
+})();
+</script>
+</body>
+</html>

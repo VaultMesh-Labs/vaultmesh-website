@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>VaultMesh - Public Attestation (v1.1)</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin:0; background:#050505; color:#eaeaea; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 18px; }
+    h1 { font-size: 18px; margin: 0 0 8px 0; letter-spacing: .02em; }
+    .sub { opacity: .8; font-size: 12px; margin-bottom: 14px; }
+    .grid { display:grid; grid-template-columns: repeat(12, 1fr); gap: 10px; }
+    .card { border: 1px solid #222; border-radius: 12px; padding: 12px; background: #0b0b0b; }
+    .span6 { grid-column: span 6; }
+    .span4 { grid-column: span 4; }
+    .span12{ grid-column: span 12; }
+    .label { font-size: 11px; opacity: .8; margin-bottom: 8px; }
+    .row { display:flex; align-items:center; justify-content:space-between; padding: 6px 0; border-top: 1px solid #1a1a1a; }
+    .row:first-of-type { border-top: none; }
+    .k { font-size: 12px; opacity: .9; }
+    .v { font-size: 12px; opacity: .95; max-width: 70%; overflow:hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid #333; }
+    .PRESENT { border-color: #2a2; }
+    .MISSING { border-color: #555; opacity: .7; }
+    .UNKNOWN { border-color: #aa2; }
+    .INVALID { border-color: #a22; }
+    .muted { opacity: .75; }
+    .footer { margin-top: 14px; font-size: 11px; opacity: .7; }
+    code { background: #111; border: 1px solid #222; border-radius: 4px; padding: 1px 4px; }
+    @media (max-width: 900px) {
+      .span6,.span4 { grid-column: span 12; }
+      .v { max-width: 62%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>VaultMesh - Public Attestation (v1.1)</h1>
+    <div class="sub">Static bundle. <span class="badge MISSING">MISSING</span> is allowed; <span class="badge INVALID">INVALID</span> fails build gate. Evidence is digest-only.</div>
+
+    <div class="card span12">
+      <div class="label">Bundle</div>
+      <div class="row"><div class="k">schema_id</div><div class="v" id="schema_id">...</div></div>
+      <div class="row"><div class="k">ts</div><div class="v" id="ts">...</div></div>
+      <div class="row"><div class="k">subject</div><div class="v" id="subject">...</div></div>
+      <div class="row"><div class="k">latest</div><div class="v" id="latest">...</div></div>
+    </div>
+
+    <div class="grid">
+      <div class="card span6">
+        <div class="label">Continuity</div>
+        <div id="continuity"></div>
+      </div>
+      <div class="card span6">
+        <div class="label">Verification / Health</div>
+        <div id="health"></div>
+      </div>
+      <div class="card span4">
+        <div class="label">Anchors</div>
+        <div id="anchors"></div>
+      </div>
+      <div class="card span4">
+        <div class="label">Drift</div>
+        <div id="drift"></div>
+      </div>
+      <div class="card span4">
+        <div class="label">Authority</div>
+        <div id="authority"></div>
+      </div>
+      <div class="card span12">
+        <div class="label">Legend</div>
+        <div class="muted">
+          <span class="badge PRESENT">PRESENT</span>
+          <span class="badge MISSING">MISSING</span>
+          <span class="badge UNKNOWN">UNKNOWN</span>
+          <span class="badge INVALID">INVALID</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      Data source: <code>/attest/attest.json</code> and <code>/attest/LATEST.txt</code> (static). No origin API calls.
+    </div>
+  </div>
+
+  <script>
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, (c) => ({
+        '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+      }[c]));
+    }
+
+    function badge(status) {
+      const st = status || 'UNKNOWN';
+      return `<span class="badge ${esc(st)}">${esc(st)}</span>`;
+    }
+
+    function isDigestLike(v) {
+      return typeof v === 'string' && /^(sha256|blake3):[0-9a-f]{16,128}$/i.test(v);
+    }
+
+    function row(key, field) {
+      const st = field && field.status ? field.status : 'UNKNOWN';
+      const val = field ? field.value : null;
+      const ev = field ? field.evidence : null;
+      const valTxt = (val === null || val === undefined) ? '' : ` ${esc(val)}`;
+      const evTxt = isDigestLike(ev) ? ` <span class="muted">[${esc(ev)}]</span>` : '';
+      return `<div class="row"><div class="k">${esc(key)}</div><div class="v">${badge(st)}${valTxt}${evTxt}</div></div>`;
+    }
+
+    async function getText(url) {
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`fetch failed ${res.status}: ${url}`);
+      return await res.text();
+    }
+
+    async function main() {
+      try {
+        const [attestRaw, latestRaw] = await Promise.all([
+          getText('./attest.json'),
+          getText('./LATEST.txt')
+        ]);
+        const attest = JSON.parse(attestRaw);
+
+        document.getElementById('schema_id').textContent = attest.schema_id || 'UNKNOWN';
+        document.getElementById('ts').textContent = attest.ts || 'UNKNOWN';
+
+        const sk = (((attest.subject || {}).kind || {}).value) || 'UNKNOWN';
+        const sn = (((attest.subject || {}).name || {}).value) || 'UNKNOWN';
+        const sv = (((attest.subject || {}).version || {}).value) || 'UNKNOWN';
+        document.getElementById('subject').textContent = `${sk}:${sn}@${sv}`;
+
+        document.getElementById('latest').textContent = latestRaw.trim();
+
+        document.getElementById('continuity').innerHTML =
+          row('root_latest', (attest.continuity || {}).root_latest) +
+          row('root_prev', (attest.continuity || {}).root_prev) +
+          row('receipt_count', (attest.continuity || {}).receipt_count);
+
+        document.getElementById('health').innerHTML =
+          row('system_state', (attest.health || {}).system_state) +
+          row('verify_ok', (attest.health || {}).verify_ok);
+
+        document.getElementById('anchors').innerHTML =
+          row('eth', (attest.anchors || {}).eth) +
+          row('btc', (attest.anchors || {}).btc);
+
+        document.getElementById('drift').innerHTML =
+          row('drift', (attest.health || {}).drift);
+
+        document.getElementById('authority').innerHTML =
+          row('active_devices', (attest.authority || {}).active_devices) +
+          row('superseded_devices', (attest.authority || {}).superseded_devices) +
+          row('revocations', (attest.authority || {}).revocations);
+      } catch (err) {
+        document.getElementById('schema_id').textContent = 'ERROR';
+        document.getElementById('ts').textContent = 'ERROR';
+        document.getElementById('subject').textContent = 'ERROR';
+        document.getElementById('latest').textContent = esc(err && err.message ? err.message : String(err));
+      }
+    }
+
+    main();
+  </script>
+</body>
+</html>
