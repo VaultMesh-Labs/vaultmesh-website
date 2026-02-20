@@ -1,0 +1,20 @@
+name: caddy-guard
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Caddy
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y caddy
+
+      - name: Caddy route lock guard
+        run: bash -euo pipefail scripts/caddy_guard.sh --config deploy/edge/etc/caddy/Caddyfile

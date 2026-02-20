@@ -79,3 +79,14 @@ The guard fails if:
 - any source page hardcodes color literals
 - `/shared/ui.css` is missing or not referenced
 - skin tokens are defined outside `public/shared/ui.css`
+
+## Caddy Guard
+
+```bash
+bash scripts/caddy_guard.sh --config deploy/edge/etc/caddy/Caddyfile
+```
+
+`scripts/caddy_guard.sh` enforces:
+- config validates with `caddy validate`
+- `vaultmesh.org` root lock to `/srv/web/vaultmesh`
+- no static reverse-proxy drift on `/proof-pack/*` and `/support/*`
