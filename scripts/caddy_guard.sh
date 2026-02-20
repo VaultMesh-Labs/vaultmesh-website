@@ -204,6 +204,11 @@ policy_check_vault() {
     fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
   fi
 
+  # support/status is hooks-only and must never be referenced by vaultmesh.org.
+  if grep -Eq '/support/status' "${block}"; then
+    fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+  fi
+
   if grep -Eq 'reverse_proxy[[:space:]]+/\*' "${block}"; then
     fail "WILDCARD_PROXY" "${RC_WILDCARD_PROXY}"
   fi
@@ -309,6 +314,9 @@ policy_check_hooks() {
   done
 
   grep -Fq "reverse_proxy ${HOOKS_UPSTREAM_TOKEN}" "${block}" || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+  grep -Eq '^\s*header\s+@hooks_allowlist\s*\{' "${block}" || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+  grep -Fq 'X-Robots-Tag "noindex, nofollow, nosnippet, noarchive"' "${block}" || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+  grep -Fq 'Cache-Control "no-store"' "${block}" || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
   grep -Eq '^\s*handle\s*\{\s*$' "${block}" || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
   grep -Eq '^\s*respond\s+404\s*$|^\s*respond\s+"Not found"\s+404\s*$' "${block}" || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
 

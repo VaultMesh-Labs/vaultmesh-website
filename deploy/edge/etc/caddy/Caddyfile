@@ -69,7 +69,7 @@ vaultmesh.org {
 	}
 
 	@operational_noindex {
-		path /support /support/* /verify /verify/* /proof-pack/lead* /proof-pack/intake* /proof-pack/payment* /proof-pack/status* /proof-pack/pay/* /proof-pack/upload/* /support/status* /support/ticket* /support/update* /support/resolve* /support/close* /support/reopen* /verify/zk*
+		path /support /support/* /verify /verify/* /proof-pack/lead* /proof-pack/intake* /proof-pack/payment* /proof-pack/status* /proof-pack/pay/* /proof-pack/upload/* /support/ticket* /support/update* /support/resolve* /support/close* /support/reopen* /verify/zk*
 	}
 	header @operational_noindex {
 		X-Robots-Tag "noindex, nofollow, nosnippet, noarchive"
@@ -174,6 +174,10 @@ hooks.vaultmesh.org {
 
 	@hooks_allowlist {
 		path /_hooks/mailgun /_hooks/n8n/* /webhook/* /webhook-test/* /support/status
+	}
+	header @hooks_allowlist {
+		X-Robots-Tag "noindex, nofollow, nosnippet, noarchive"
+		Cache-Control "no-store"
 	}
 	handle @hooks_allowlist {
 		reverse_proxy {$VM_HOOKS_UPSTREAM} {
