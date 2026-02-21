@@ -375,6 +375,63 @@ policy_check_mcp() {
   fi
 }
 
+policy_check_support_host() {
+  local block="$1"
+
+  grep -Eq '^\s*@support_status\s*\{' "${block}" || fail "MISSING_HOST_BLOCKS" "${RC_MISSING_HOST_BLOCKS}"
+  grep -Fq '/support/status' "${block}" || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+  grep -Eq '^\s*header\s+@support_status\s*\{' "${block}" || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+  grep -Fq 'X-Robots-Tag "noindex, nofollow, nosnippet, noarchive"' "${block}" || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+  grep -Fq 'Cache-Control "no-store"' "${block}" || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+  grep -Fq "reverse_proxy ${HOOKS_UPSTREAM_TOKEN}" "${block}" || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+  grep -Fq 'redir https://vaultmesh.org/support/ 308' "${block}" || fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+
+  if grep -Eq "^[[:space:]]*root[[:space:]]+\*[[:space:]]+${SITE_ROOT_LOCK}([[:space:]]|$)" "${block}"; then
+    fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+  fi
+
+  if ! awk '
+    function d(s,t,o,c){t=s;o=gsub(/\{/,"{",t);t=s;c=gsub(/\}/,"}",t);return o-c}
+    BEGIN{inh=0;depth=0;name="";bad=0;rp=0}
+    {
+      line=$0
+      if (!inh && line ~ /^[[:space:]]*handle[[:space:]]+@[A-Za-z0-9_]+[[:space:]]*\{/) {
+        tmp=line
+        sub(/^[[:space:]]*handle[[:space:]]+@/, "", tmp)
+        sub(/[[:space:]]*\{.*/, "", tmp)
+        inh=1
+        name=tmp
+        depth=d(line)
+      } else if (!inh && line ~ /^[[:space:]]*handle[[:space:]]*\{/) {
+        inh=1
+        name="default"
+        depth=d(line)
+      }
+      if (inh) {
+        if (line ~ /reverse_proxy/) { rp++; if (name != "support_status") bad=1 }
+        depth += d(line)
+        if (depth <= 0) { inh=0; name="" }
+        next
+      }
+      if (line ~ /reverse_proxy/) { rp++; bad=1 }
+    }
+    END{
+      if (rp==0) exit 2
+      if (bad) exit 1
+      exit 0
+    }
+  ' "${block}"; then
+    rc=$?
+    if [[ "${rc}" -eq 2 ]]; then
+      fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+    fi
+    fail "FORBIDDEN_MIX" "${RC_FORBIDDEN_MIX}"
+  fi
+
+  printf 'SUPPORT_HOST_PRESENT=1\n'
+  printf 'SUPPORT_STATUS_ALIAS_OK=1\n'
+}
+
 printf 'CADDY_GUARD_PRESENT=1\n'
 
 SNAPSHOT_SHA="$(hash_of_file "${SNAPSHOT_CFG}")"
@@ -415,20 +472,24 @@ fi
 VAULT_TMP="$(mktemp)"
 HOOKS_TMP="$(mktemp)"
 MCP_TMP="$(mktemp)"
+SUPPORT_TMP="$(mktemp)"
 
 extract_block "${TARGET_CFG}" "vaultmesh.org" "${VAULT_TMP}"
 extract_block "${TARGET_CFG}" "hooks.vaultmesh.org" "${HOOKS_TMP}"
 extract_block "${TARGET_CFG}" "mcp.vaultmesh.org" "${MCP_TMP}"
+extract_block "${TARGET_CFG}" "support.vaultmesh.org" "${SUPPORT_TMP}"
 
-[[ -s "${VAULT_TMP}" ]] || { rm -f "${VAULT_TMP}" "${HOOKS_TMP}" "${MCP_TMP}"; fail "MISSING_HOST_BLOCKS" "${RC_MISSING_HOST_BLOCKS}"; }
-[[ -s "${HOOKS_TMP}" ]] || { rm -f "${VAULT_TMP}" "${HOOKS_TMP}" "${MCP_TMP}"; fail "MISSING_HOST_BLOCKS" "${RC_MISSING_HOST_BLOCKS}"; }
-[[ -s "${MCP_TMP}" ]] || { rm -f "${VAULT_TMP}" "${HOOKS_TMP}" "${MCP_TMP}"; fail "MISSING_HOST_BLOCKS" "${RC_MISSING_HOST_BLOCKS}"; }
+[[ -s "${VAULT_TMP}" ]] || { rm -f "${VAULT_TMP}" "${HOOKS_TMP}" "${MCP_TMP}" "${SUPPORT_TMP}"; fail "MISSING_HOST_BLOCKS" "${RC_MISSING_HOST_BLOCKS}"; }
+[[ -s "${HOOKS_TMP}" ]] || { rm -f "${VAULT_TMP}" "${HOOKS_TMP}" "${MCP_TMP}" "${SUPPORT_TMP}"; fail "MISSING_HOST_BLOCKS" "${RC_MISSING_HOST_BLOCKS}"; }
+[[ -s "${MCP_TMP}" ]] || { rm -f "${VAULT_TMP}" "${HOOKS_TMP}" "${MCP_TMP}" "${SUPPORT_TMP}"; fail "MISSING_HOST_BLOCKS" "${RC_MISSING_HOST_BLOCKS}"; }
+[[ -s "${SUPPORT_TMP}" ]] || { rm -f "${VAULT_TMP}" "${HOOKS_TMP}" "${MCP_TMP}" "${SUPPORT_TMP}"; fail "MISSING_HOST_BLOCKS" "${RC_MISSING_HOST_BLOCKS}"; }
 
 policy_check_vault "${VAULT_TMP}"
 policy_check_hooks "${HOOKS_TMP}"
 policy_check_mcp "${MCP_TMP}"
+policy_check_support_host "${SUPPORT_TMP}"
 
 printf 'CADDY_POLICY_HOST_SPLIT_OK=1\n'
 printf 'CADDY_GUARD_OK=1\n'
 
-rm -f "${VAULT_TMP}" "${HOOKS_TMP}" "${MCP_TMP}" "${LIVE_TMP:-}"
+rm -f "${VAULT_TMP}" "${HOOKS_TMP}" "${MCP_TMP}" "${SUPPORT_TMP}" "${LIVE_TMP:-}"

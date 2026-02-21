@@ -192,6 +192,35 @@ hooks.vaultmesh.org {
 	}
 }
 
+support.vaultmesh.org {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+
+	@support_status {
+		path /support/status
+	}
+	header @support_status {
+		X-Robots-Tag "noindex, nofollow, nosnippet, noarchive"
+		Cache-Control "no-store"
+	}
+	handle @support_status {
+		reverse_proxy {$VM_HOOKS_UPSTREAM} {
+			header_up Host {host}
+			header_up X-Forwarded-Proto {scheme}
+			header_up X-Forwarded-For {remote}
+		}
+	}
+
+	handle {
+		redir https://vaultmesh.org/support/ 308
+	}
+}
+
 
 # Temporary NetBird ingress proof endpoint
 # NetBird Caddyfile Snippet

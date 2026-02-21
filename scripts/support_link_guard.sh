@@ -48,4 +48,14 @@ if [[ -n "${forbidden_hits}" ]]; then
   exit "${RC_FORBIDDEN}"
 fi
 
+typo_hits="$(
+  rg -n --hidden --glob '!**/.git/**' --glob '!**/*.bak*' --glob '!**/*.tmp' \
+    'support\.vaultmhes\.org|api\.aultmesh\.org|mcp\.aultmesh\.org' "${SCAN_DIR}" || true
+)"
+if [[ -n "${typo_hits}" ]]; then
+  echo "SUPPORT_LINK_GUARD_FAIL typo_domain_detected=1" >&2
+  printf '%s\n' "${typo_hits}" >&2
+  exit "${RC_FORBIDDEN}"
+fi
+
 echo "SUPPORT_LINK_GUARD_OK=1"
