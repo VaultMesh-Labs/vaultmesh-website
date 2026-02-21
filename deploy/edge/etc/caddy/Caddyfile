@@ -163,6 +163,20 @@ mcp.vaultmesh.org {
 }
 # <<< VAULTMESH_INFRA_MCP_GATEWAY_V1 <<<
 
+api.vaultmesh.org {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+
+	handle {
+		reverse_proxy {$ORIGIN_GATEWAY_UPSTREAM:10.44.0.3:9115}
+	}
+}
+
 hooks.vaultmesh.org {
 	encode zstd gzip
 
