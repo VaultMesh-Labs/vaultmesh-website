@@ -37,6 +37,12 @@ jobs:
           printf '%s\n' "$out"
           grep -q '^UI_SKIN_GUARD_OK=1$' <<<"$out"
 
+      - name: Support link host guard
+        run: |
+          out="$(bash -euo pipefail scripts/support_link_guard.sh dist)"
+          printf '%s\n' "$out"
+          grep -q '^SUPPORT_LINK_GUARD_OK=1$' <<<"$out"
+
       - name: Caddy guard (repo snapshot)
         env:
           VM_HOOKS_UPSTREAM: 127.0.0.1:65535
