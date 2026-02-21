@@ -9,3 +9,7 @@ deploy/edge/root/vaultmesh/attest/RELEASE_ATTEST.json
 deploy/edge/root/vaultmesh/
 reports/
 .DS_Store
+
+# local-only site folders (non-canonical)
+support.vaultmesh.org/
+vaultmesh.org/
