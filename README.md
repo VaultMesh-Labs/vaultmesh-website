@@ -6,9 +6,13 @@ Deterministic static public surface for `vaultmesh.org`.
 
 ```text
 public/
+  architecture/index.html
   index.html
+  pricing/index.html
   proof-pack/index.html
+  proof-pack/intake/index.html
   support/index.html
+  support/ticket/index.html
   trust/index.html
   verify/index.html
   attest/

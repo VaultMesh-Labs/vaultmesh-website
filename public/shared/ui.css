@@ -1,4 +1,4 @@
-/* VaultMesh UI Skin v1 - bone-v04 */
+/* VaultMesh UI Skin v1 - bone-v05 */
 :root {
   --vm-bg: #0b0f14;
   --vm-surface: #101722;
@@ -164,78 +164,64 @@ a:hover {
   color: var(--vm-muted);
 }
 
-.vm-nav {
-  margin-top: 16px;
-  display: flex;
-  gap: 14px;
-  align-items: center;
-}
-
-.vm-navlinks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 14px;
-  margin-top: 14px;
-}
-
-.vm-navlinks a {
-  color: var(--vm-ink);
-  opacity: 0.86;
-}
-
-.vm-navlinks a.active {
-  opacity: 1;
-  text-decoration: underline;
-}
-
-@media (max-width: 760px) {
-  .vm-container {
-    padding: 28px 14px 48px;
-  }
-
-  .vm-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
 /* ================================
    NAV_FOOTER_v0
    ================================ */
 
 .vm-nav {
-  border-bottom: 1px solid var(--border);
-  padding: 12px 24px;
-  font-family: var(--font-mono);
-}
-
-.vm-nav-inner {
-  max-width: 1100px;
-  margin: 0 auto;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 1.75rem;
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.9rem 0;
+  -webkit-overflow-scrolling: touch;
 }
 
-.vm-brand a {
-  text-decoration: none;
+.vm-nav::-webkit-scrollbar {
+  display: none;
+}
+.vm-nav {
+  scrollbar-width: none;
+}
+
+.vm-brand {
   font-weight: 600;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.01em;
+  opacity: 0.92;
 }
 
-.vm-links {
-  display: flex;
-  gap: 20px;
-}
-
-.vm-links a,
-.vm-external a {
+.vm-nav-link {
   text-decoration: none;
   opacity: 0.8;
+  transition: opacity 120ms ease;
+  border-bottom: 2px solid transparent;
+  padding-bottom: 2px;
 }
 
-.vm-links a:hover,
-.vm-external a:hover {
+.vm-nav-link:hover {
   opacity: 1;
+}
+
+.vm-nav-link.active {
+  opacity: 1;
+  border-bottom-color: currentColor;
+}
+
+.vm-nav-cc {
+  margin-left: auto;
+  text-decoration: none;
+  opacity: 0.7;
+  transition: opacity 120ms ease, transform 120ms ease;
+  padding: 0 0.1rem;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.vm-nav-cc:hover {
+  opacity: 1;
+  transform: translateY(-1px);
 }
 
 .vm-footer {
@@ -263,6 +249,16 @@ a:hover {
   max-width: 1100px;
   margin: 20px auto 0;
   opacity: 0.5;
+}
+
+@media (max-width: 760px) {
+  .vm-container {
+    padding: 28px 14px 48px;
+  }
+
+  .vm-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ================================
@@ -412,5 +408,284 @@ a:hover {
 
   .vm-attest .v {
     max-width: 62%;
+  }
+}
+
+/* ================================
+   Console polish for hardened static surfaces
+   ================================ */
+
+.route-architecture .card,
+.route-pricing .card,
+.route-proof-pack-intake .card,
+.route-support-ticket .card {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.route-architecture .row,
+.route-pricing .row,
+.route-proof-pack-intake .row,
+.route-support-ticket .row {
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.route-architecture .k,
+.route-pricing .k,
+.route-proof-pack-intake .k,
+.route-support-ticket .k {
+  flex: 0 0 36%;
+  max-width: 36%;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.route-architecture .v,
+.route-pricing .v,
+.route-proof-pack-intake .v,
+.route-support-ticket .v {
+  max-width: 64%;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  text-align: right;
+}
+
+/* ================================
+   v1.1 PAGE SECTIONS — matched to attest density
+   ================================ */
+
+.page {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 18px 18px 40px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* --- Hero --- */
+
+.hero {
+  padding: 14px 0 10px;
+}
+
+.hero h1 {
+  font-size: 18px;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  margin: 0 0 8px;
+  color: var(--vm-attest-text);
+}
+
+.subhead {
+  font-size: 12px;
+  line-height: 1.5;
+  opacity: 0.8;
+  max-width: 64ch;
+  margin: 0 0 12px;
+}
+
+.cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* --- Buttons --- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--vm-attest-line);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-decoration: none;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--vm-attest-text);
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  text-decoration: none;
+}
+
+.btn.primary {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255,255,255,0.18);
+}
+
+.btn.primary:hover {
+  background: rgba(255, 255, 255, 0.13);
+}
+
+/* --- Grids --- */
+
+.grid-3,
+.grid-2 {
+  display: grid;
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+/* --- Cards (base + page-scoped) --- */
+
+.card {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--vm-attest-line);
+  background: var(--vm-attest-panel);
+}
+
+.card h2 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+
+.card p,
+.card li {
+  font-size: 12px;
+  line-height: 1.5;
+  opacity: 0.8;
+}
+
+section.card {
+  margin-top: 10px;
+}
+
+.page .card p {
+  margin: 0;
+}
+
+.page .card ul {
+  margin: 6px 0 0;
+  padding-left: 16px;
+  line-height: 1.5;
+  font-size: 12px;
+}
+
+.page .card .btn {
+  margin-top: 10px;
+}
+
+/* --- Proof-strip chips --- */
+
+.proof-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0 8px;
+}
+
+.chip {
+  display: inline-flex;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--vm-attest-line);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+/* --- Steps --- */
+
+.steps {
+  margin: 14px 0;
+}
+
+.steps h2 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+
+.steps ol {
+  margin: 0;
+  padding-left: 16px;
+  line-height: 1.5;
+  font-size: 12px;
+}
+
+.steps li {
+  margin: 6px 0;
+}
+
+/* --- FAQ --- */
+
+.faq {
+  margin-top: 14px;
+}
+
+.faq h2 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+
+.faq details {
+  border: 1px solid var(--vm-attest-line);
+  border-radius: 12px;
+  background: var(--vm-attest-panel);
+  padding: 10px 12px;
+  margin: 8px 0;
+}
+
+.faq summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.faq details p {
+  margin: 6px 0 0;
+  opacity: 0.7;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* --- Misc --- */
+
+.vm-fail-note {
+  margin-top: 12px;
+  opacity: 0.7;
+  font-size: 11px;
+}
+
+@media (max-width: 860px) {
+  .grid-3 { grid-template-columns: 1fr; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 16px; }
+}
+
+@media (max-width: 900px) {
+  .route-architecture .k,
+  .route-pricing .k,
+  .route-proof-pack-intake .k,
+  .route-support-ticket .k {
+    flex: 0 0 42%;
+    max-width: 42%;
+  }
+
+  .route-architecture .v,
+  .route-pricing .v,
+  .route-proof-pack-intake .v,
+  .route-support-ticket .v {
+    max-width: 58%;
   }
 }

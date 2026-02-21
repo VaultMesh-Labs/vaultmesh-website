@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/_lib/routes_required.sh
+source "${SCRIPT_DIR}/scripts/_lib/routes_required.sh"
+
 hash_file() {
   if command -v sha256sum >/dev/null 2>&1; then
     sha256sum "$@"
@@ -38,6 +42,16 @@ inject_marker_file() {
     { print }
   ' "$file" > "$tmp"
   mv "$tmp" "$file"
+}
+
+is_nojs_static_surface() {
+  local file="$1"
+  case "$file" in
+    */architecture/index.html|*/pricing/index.html|*/proof-pack/intake/index.html|*/support/ticket/index.html)
+      return 0
+      ;;
+  esac
+  return 1
 }
 
 write_manifest() {
@@ -79,10 +93,22 @@ if [[ -f dist/attest/index.html && -f public/shared/partials/attest_panel.html ]
   mv dist/attest/index.html.tmp dist/attest/index.html
 fi
 
+NAV_NOJS_TMP="$(mktemp)"
+awk '
+  /<script[[:space:]>]/ { in_script=1; next }
+  /<\/script>/ { in_script=0; next }
+  !in_script { print }
+' public/shared/nav.html > "$NAV_NOJS_TMP"
+
 while IFS= read -r -d '' html_file; do
-  inject_marker_file "<!-- {{NAV}} -->" "public/shared/nav.html" "$html_file"
+  nav_fragment="public/shared/nav.html"
+  if is_nojs_static_surface "$html_file"; then
+    nav_fragment="$NAV_NOJS_TMP"
+  fi
+  inject_marker_file "<!-- {{NAV}} -->" "$nav_fragment" "$html_file"
   inject_marker_file "<!-- {{FOOTER}} -->" "public/shared/footer.html" "$html_file"
 done < <(find dist -type f -name "*.html" -print0)
+rm -f "$NAV_NOJS_TMP"
 
 # Shared template fragments are build inputs, not shipped artifacts.
 rm -f dist/shared/nav.html dist/shared/footer.html
@@ -108,5 +134,36 @@ if [[ "${FINAL_MANIFEST_SHA}" != "${MANIFEST_SHA}" ]]; then
 fi
 
 hash_file dist/MANIFEST.sha256 > dist/BUILD_PROOF.txt
+
+ROUTES_CSV="${VM_ROUTES_REQUIRED_CSV}"
+BUILD_INFO_TMP="$(mktemp)"
+IFS=',' read -r -a REQUIRED_ROUTES <<< "${ROUTES_CSV}"
+for route in "${REQUIRED_ROUTES[@]}"; do
+  route="${route#"${route%%[![:space:]]*}"}"
+  route="${route%"${route##*[![:space:]]}"}"
+  [[ -n "${route}" ]] || continue
+  if [[ -f "dist/${route}" ]]; then
+    route_sha="sha256:$(hash_file "dist/${route}" | awk '{print $1}')"
+  else
+    route_sha="MISSING"
+  fi
+  printf '%s  %s\n' "${route_sha}" "${route}" >> "${BUILD_INFO_TMP}"
+done
+DIST_TREE_SHA256="sha256:$(hash_file "${BUILD_INFO_TMP}" | awk '{print $1}')"
+rm -f "${BUILD_INFO_TMP}"
+
+BUILD_RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)-${BUILD_ID}"
+BUILD_INFO_FILE="dist/${VM_BUILD_INFO_PATH}"
+mkdir -p "$(dirname "${BUILD_INFO_FILE}")"
+cat > "${BUILD_INFO_FILE}" <<EOF
+{
+  "kind": "vaultmesh.website.build_info.v1",
+  "generated_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "build_id": "${BUILD_ID}",
+  "build_run_id": "${BUILD_RUN_ID}",
+  "routes_csv": "${ROUTES_CSV}",
+  "dist_tree_sha256": "${DIST_TREE_SHA256}"
+}
+EOF
 
 echo "BUILD_OK=1"

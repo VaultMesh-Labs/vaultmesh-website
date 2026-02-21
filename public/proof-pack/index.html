@@ -3,21 +3,51 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Proof Pack | VaultMesh</title>
-  <link rel="stylesheet" href="/shared/ui.css?v=bone-v04" />
+  <title>Proof Pack — Verifiable Evidence Bundle | VaultMesh</title>
+  <meta name="description" content="Fixed scope, fixed price: one verifiable evidence bundle for one system boundary. Offline-verifiable, audit-ready, and delivered with a verification walkthrough." />
+  <link rel="stylesheet" href="/shared/ui.css?v=bone-v05" />
 </head>
-<body class="vm-bg">
+<body class="vm-attest route-proof-pack">
   <!-- {{NAV}} -->
-  <main class="vm-container">
-    <section class="vm-panel">
-      <header class="vm-panel-header">
-        <h1 class="vm-title">Proof Pack</h1>
-        <span class="vm-chip vm-chip-neutral">Public Surface</span>
-      </header>
-      <p class="vm-muted">Evidence intake and proof publication routes live behind this surface.</p>
-      <div class="vm-meta">Build: {{BUILD_ID}}</div>
+  <main class="page">
+    <section class="hero">
+      <h1>Proof Pack Sprint</h1>
+      <p class="subhead">
+        Fixed scope. Fixed price. Verifiable output: a shareable evidence bundle for one system boundary.
+      </p>
+      <div class="cta-row">
+        <a class="btn primary" href="/proof-pack/intake">Request intake</a>
+        <a class="btn" href="/trust/">Trust model</a>
+      </div>
     </section>
 
+    <section class="card">
+      <h2>What you get</h2>
+      <ul>
+        <li><code>bundle.zip</code> — artifacts, manifests, and continuity pointers</li>
+        <li><code>VERIFY_ALL.sh</code> — offline verification (hashes + receipts)</li>
+        <li>Append-only receipts ledger (chain linked)</li>
+        <li>Short operator report: what changed + how to validate</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Scope guardrails</h2>
+      <ul>
+        <li>One boundary, one claim set, one bundle format.</li>
+        <li>New requirements become new claims (new proof events).</li>
+        <li>No hidden work. No silent mutations.</li>
+      </ul>
+    </section>
+
+    <section class="steps">
+      <h2>Timeline</h2>
+      <ol>
+        <li><strong>Day 1</strong>: boundary + claims locked.</li>
+        <li><strong>Day 2–N</strong>: generation + adversarial validation.</li>
+        <li><strong>Final</strong>: bundle delivery + verification walkthrough.</li>
+      </ol>
+    </section>
   </main>
   <!-- {{FOOTER}} -->
 </body>

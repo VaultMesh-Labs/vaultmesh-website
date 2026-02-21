@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Support Ticket Intake | VaultMesh</title>
+  <meta name="description" content="Structured support ticket intake for VaultMesh operations, verification, and incident response." />
+  <link rel="stylesheet" href="/shared/ui.css?v=bone-v05" />
+</head>
+<body class="vm-attest route-support-ticket">
+  <!-- {{NAV}} -->
+  <div class="wrap">
+    <h1>VaultMesh - Support Ticket Intake</h1>
+    <div class="sub">Structured support contract for incidents and operational issues. Static GET documentation surface.</div>
+
+    <div class="card span12">
+      <div class="label">Status Bar</div>
+      <div class="row"><div class="k">surface</div><div class="v"><span class="badge PRESENT">PRESENT</span> STATIC_HTML</div></div>
+      <div class="row"><div class="k">mode</div><div class="v"><span class="badge PRESENT">PRESENT</span> NO_JS / NO_FETCH</div></div>
+      <div class="row"><div class="k">verify</div><div class="v"><span class="badge PRESENT">PRESENT</span> OFFLINE_COMPATIBLE</div></div>
+      <div class="row"><div class="k">route</div><div class="v"><code>/support/ticket/</code></div></div>
+      <div class="row"><div class="k">post_handler</div><div class="v"><code>/support/ticket</code> (separate)</div></div>
+    </div>
+
+    <div class="card span12">
+      <div class="label">Ticket Contract</div>
+      <div class="row"><div class="k">ticket model</div><div class="v"><span class="badge PRESENT">PRESENT</span> structured triage</div></div>
+      <div class="row"><div class="k">status tracking</div><div class="v"><a href="https://support.vaultmesh.org/support/status">support.vaultmesh.org/support/status</a></div></div>
+      <div class="row"><div class="k">endpoint split</div><div class="v"><span class="badge PRESENT">PRESENT</span> static GET + POST handler</div></div>
+    </div>
+
+    <div class="grid">
+      <div class="card span4">
+        <div class="label">Severity</div>
+        <div class="row"><div class="k">SEV-1</div><div class="v">verification-blocking outage</div></div>
+        <div class="row"><div class="k">SEV-2</div><div class="v">degraded proof operations</div></div>
+        <div class="row"><div class="k">SEV-3</div><div class="v">non-blocking defect/request</div></div>
+      </div>
+
+      <div class="card span4">
+        <div class="label">Required Fields</div>
+        <div class="row"><div class="k">boundary</div><div class="v">service + environment</div></div>
+        <div class="row"><div class="k">time</div><div class="v">timestamp in UTC</div></div>
+        <div class="row"><div class="k">evidence</div><div class="v">digest IDs or run IDs</div></div>
+        <div class="row"><div class="k">impact</div><div class="v">who is blocked</div></div>
+      </div>
+
+      <div class="card span4">
+        <div class="label">Flow</div>
+        <div class="row"><div class="k">1</div><div class="v">ticket created</div></div>
+        <div class="row"><div class="k">2</div><div class="v">triage + severity</div></div>
+        <div class="row"><div class="k">3</div><div class="v">evidence request</div></div>
+        <div class="row"><div class="k">4</div><div class="v">resolution + closure</div></div>
+      </div>
+
+      <div class="card span6">
+        <div class="label">Submission Routes</div>
+        <div class="row"><div class="k">GET docs</div><div class="v"><a href="/support/ticket/">/support/ticket/</a></div></div>
+        <div class="row"><div class="k">POST endpoint</div><div class="v"><code>/support/ticket</code></div></div>
+        <div class="row"><div class="k">status route</div><div class="v"><a href="https://support.vaultmesh.org/support/status">status host</a></div></div>
+      </div>
+
+      <div class="card span6">
+        <div class="label">Security Reporting</div>
+        <div class="row"><div class="k">priority</div><div class="v"><span class="badge INVALID">INVALID</span> if active exploit path</div></div>
+        <div class="row"><div class="k">minimum evidence</div><div class="v">repro + impact + logs</div></div>
+        <div class="row"><div class="k">reference</div><div class="v"><a href="/trust/">/trust/</a></div></div>
+      </div>
+
+      <div class="card span12">
+        <div class="label">Action Row</div>
+        <div class="row"><div class="k">action</div><div class="v">OPEN_TICKET</div></div>
+        <div class="row"><div class="k">path</div><div class="v"><code>/support/ticket/</code></div></div>
+        <div class="row"><div class="k">expect</div><div class="v">SEVERITY + EVIDENCE_FIELDS</div></div>
+      </div>
+
+      <div class="card span12">
+        <div class="label">Legend</div>
+        <div class="row"><div class="k">what this is</div><div class="v">static support intake contract</div></div>
+        <div class="row"><div class="k">what this is not</div><div class="v">stateful ticketing backend</div></div>
+        <div class="row"><div class="k">next action</div><div class="v">provide severity and evidence bundle ids</div></div>
+        <div class="row"><div class="k">evidence links</div><div class="v"><a href="/attest/">/attest/</a> | <a href="/verify/">/verify/</a></div></div>
+      </div>
+    </div>
+
+    <div class="footer">Static statement: this page documents support intake. Official ticket submission occurs on <code>POST /support/ticket</code>.</div>
+  </div>
+  <!-- {{FOOTER}} -->
+</body>
+</html>

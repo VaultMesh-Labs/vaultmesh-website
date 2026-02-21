@@ -1,3 +1,11 @@
 .DS_Store
 dist/
 *.bak
+reports/deploy_parity_guard_v1.json
+reports/deploy_parity_guard_v1.LAST_OK.json
+deploy/edge/root/vaultmesh/attest/RELEASE_ATTEST.json
+
+# generated deploy snapshot + reports
+deploy/edge/root/vaultmesh/
+reports/
+.DS_Store

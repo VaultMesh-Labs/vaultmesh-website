@@ -62,7 +62,7 @@ vaultmesh.org {
 	}
 
 	@crawlable_html {
-		path / /trust /trust/ /brief /brief/ /changelog /changelog/ /proof-pack/
+		path / /trust /trust/ /brief /brief/ /changelog /changelog/ /proof-pack/ /architecture /architecture/ /pricing /pricing/
 	}
 	header @crawlable_html {
 		Cache-Control "public, max-age=0, must-revalidate"
@@ -80,6 +80,18 @@ vaultmesh.org {
 		path /proof-pack
 	}
 	redir @proofpack_noslash /proof-pack/ 308
+
+	@proofpack_intake_get_noslash {
+		method GET HEAD
+		path /proof-pack/intake
+	}
+	redir @proofpack_intake_get_noslash /proof-pack/intake/ 308
+
+	@support_ticket_get_noslash {
+		method GET HEAD
+		path /support/ticket
+	}
+	redir @support_ticket_get_noslash /support/ticket/ 308
 
 	@origin_gateway {
 		path /proof-pack/lead* /proof-pack/intake /proof-pack/payment /proof-pack/status /support/ticket /support/update /support/resolve /support/close /support/reopen /verify/zk /proof/cc/heads /proof/cc/heads/latest

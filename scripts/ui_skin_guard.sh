@@ -2,9 +2,9 @@
 set -euo pipefail
 
 # UI_SKIN_GUARD_v0
-# Enforce one canonical visual contract (bone-v04):
+# Enforce one canonical visual contract (bone-v05):
 # - public/shared/ui.css is the only token source
-# - every shipped HTML imports /shared/ui.css?v=bone-v04
+# - every shipped HTML imports /shared/ui.css?v=bone-v05
 # - no inline style blocks or style attributes in HTML
 # - no hardcoded color literals outside shared/ui.css
 
@@ -14,7 +14,7 @@ cd "${ROOT_DIR}"
 MODE="repo"
 TARGET_DIR="public"
 SKIN_FILE="public/shared/ui.css"
-VERSION_LOCK="${UI_SKIN_VERSION_LOCK:-bone-v04}"
+VERSION_LOCK="${UI_SKIN_VERSION_LOCK:-bone-v05}"
 
 RC_USAGE=2
 RC_MISSING=11
@@ -134,19 +134,13 @@ for file in "${HTML_FILES[@]}"; do
   fi
 
   case "${rel}" in
-    index.html|attest/index.html|trust/index.html|verify/index.html)
+    index.html|attest/index.html|trust/index.html|verify/index.html|proof-pack/index.html|proof-pack/intake/index.html|support/index.html|support/ticket/index.html|architecture/index.html|pricing/index.html)
       if ! grep -Eq '<body[^>]*class="[^"]*vm-attest' "${file}"; then
         echo "UI_SKIN_GUARD_FAIL route_shell_mismatch file=${file} expected=vm-attest" >&2
         route_ok=0
       fi
-      if ! grep -q 'class="wrap"' "${file}"; then
-        echo "UI_SKIN_GUARD_FAIL route_shell_mismatch file=${file} expected=wrap" >&2
-        route_ok=0
-      fi
-      ;;
-    proof-pack/index.html|support/index.html)
-      if ! grep -Eq '<body[^>]*class="[^"]*(vm-bg|vm-attest)' "${file}"; then
-        echo "UI_SKIN_GUARD_FAIL route_shell_mismatch file=${file} expected=vm-bg_or_vm-attest" >&2
+      if ! grep -Eq 'class="wrap"|class="page"' "${file}"; then
+        echo "UI_SKIN_GUARD_FAIL route_shell_mismatch file=${file} expected=wrap|page" >&2
         route_ok=0
       fi
       ;;

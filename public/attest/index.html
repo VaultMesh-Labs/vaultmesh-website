@@ -4,9 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>VaultMesh - Public Attestation (v1.1)</title>
-  <link rel="stylesheet" href="/shared/ui.css?v=bone-v04" />
+  <link rel="stylesheet" href="/shared/ui.css?v=bone-v05" />
 </head>
-<body class="vm-attest">
+<body class="vm-attest route-attest">
   <!-- {{NAV}} -->
   <div class="wrap">
     <h1>VaultMesh - Public Attestation (v1.1)</h1>
@@ -40,6 +40,35 @@
       <div class="card span4">
         <div class="label">Authority</div>
         <div id="authority"></div>
+      </div>
+      <div class="card span4">
+        <div class="label">Release</div>
+        <div class="row">
+          <div class="k">status</div>
+          <div class="v" id="release_status">MISSING</div>
+        </div>
+        <div class="row">
+          <div class="k">build_run_id</div>
+          <div class="v mono" id="release_build_run_id">—</div>
+        </div>
+        <div class="row">
+          <div class="k">deploy_target_id</div>
+          <div class="v mono" id="release_target_id">—</div>
+        </div>
+        <div class="row">
+          <div class="k">root_tree_sha256</div>
+          <div class="v mono" id="release_root_sha">—</div>
+        </div>
+        <div class="row">
+          <div class="k">caddyfile_sha256</div>
+          <div class="v mono" id="release_caddy_sha">—</div>
+        </div>
+        <div class="row">
+          <div class="k">artifact</div>
+          <div class="v">
+            <a href="/attest/RELEASE_ATTEST.json" target="_blank">/attest/RELEASE_ATTEST.json</a>
+          </div>
+        </div>
       </div>
       <div class="card span12">
         <div class="label">Legend</div>
@@ -81,6 +110,73 @@
       const valTxt = (val === null || val === undefined) ? '' : ` ${esc(val)}`;
       const evTxt = isDigestLike(ev) ? ` <span class="muted">[${esc(ev)}]</span>` : '';
       return `<div class="row"><div class="k">${esc(key)}</div><div class="v">${badge(st)}${valTxt}${evTxt}</div></div>`;
+    }
+
+    function shortHashWithTitle(el, full) {
+      if (!el) return;
+      if (!full || typeof full !== 'string') {
+        el.textContent = '—';
+        el.removeAttribute('title');
+        return;
+      }
+      el.textContent = full.slice(0, 27) + '…';
+      el.setAttribute('title', full);
+    }
+
+    function renderReleaseMissing() {
+      const status = document.getElementById('release_status');
+      if (status) status.textContent = 'MISSING';
+    }
+
+    function renderReleaseInvalid() {
+      const status = document.getElementById('release_status');
+      if (status) status.textContent = 'INVALID';
+    }
+
+    function renderReleasePresent(data) {
+      const status = document.getElementById('release_status');
+      const build = document.getElementById('release_build_run_id');
+      const target = document.getElementById('release_target_id');
+
+      if (status) status.textContent = 'PRESENT';
+      if (build) build.textContent = data.build_run_id || '—';
+      if (target) target.textContent = data.deploy_target_id || '—';
+
+      shortHashWithTitle(document.getElementById('release_root_sha'), data.deployed_root_tree_sha256);
+      shortHashWithTitle(document.getElementById('release_caddy_sha'), data.caddyfile_sha256);
+    }
+
+    function loadReleaseAttest() {
+      renderReleaseMissing();
+
+      fetch('./RELEASE_ATTEST.json', { cache: 'no-store' })
+        .then((r) => {
+          if (!r.ok) return null;
+          return r.json();
+        })
+        .then((data) => {
+          if (!data) return;
+
+          if (data.kind !== 'vaultmesh.website.release_attest_deploy.v1') {
+            renderReleaseInvalid();
+            return;
+          }
+
+          if (
+            !data.build_run_id ||
+            !data.deploy_target_id ||
+            !data.deployed_root_tree_sha256 ||
+            !data.caddyfile_sha256
+          ) {
+            renderReleaseInvalid();
+            return;
+          }
+
+          renderReleasePresent(data);
+        })
+        .catch(() => {
+          // stay MISSING, never throw
+        });
     }
 
     async function getText(url) {
@@ -136,6 +232,7 @@
     }
 
     main();
+    loadReleaseAttest();
   </script>
 </body>
 </html>

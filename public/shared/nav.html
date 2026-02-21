@@ -1,22 +1,33 @@
-<!-- NAV_v0 -->
-<nav class="vm-nav">
-  <div class="vm-nav-inner">
-    <div class="vm-brand">
-      <a href="/">VaultMesh</a>
-    </div>
+<nav class="vm-nav" aria-label="Primary">
+  <span class="vm-brand" aria-label="VaultMesh">VaultMesh</span>
 
-    <div class="vm-links">
-      <a href="/attest/">Attest</a>
-      <a href="/proof-pack/">Proof Pack</a>
-      <a href="/trust/">Trust</a>
-      <a href="/verify/">Verify</a>
-      <a href="/support/">Support</a>
-    </div>
+  <a class="vm-nav-link" href="/attest/">Attest</a>
+  <a class="vm-nav-link" href="/proof-pack/">Proof Pack</a>
+  <a class="vm-nav-link" href="/support/">Support</a>
+  <a class="vm-nav-link" href="/trust/">Trust</a>
+  <a class="vm-nav-link" href="/verify/">Verify</a>
 
-    <div class="vm-external">
-      <a href="https://cc.vaultmesh.org/" target="_blank" rel="noopener">
-        cc ↗
-      </a>
-    </div>
-  </div>
+  <a
+    class="vm-nav-cc"
+    href="https://cc.vaultmesh.org"
+    title="Command Center"
+    aria-label="Command Center"
+    rel="noopener"
+  >◼︎</a>
 </nav>
+
+<script>
+  (function () {
+    try {
+      var path = (location.pathname || "/").replace(/\/+$/, "") + "/";
+      var links = document.querySelectorAll(".vm-nav a.vm-nav-link");
+      for (var i = 0; i < links.length; i++) {
+        var href = links[i].getAttribute("href") || "";
+        var norm = href.replace(/\/+$/, "") + "/";
+        if (norm === path) {
+          links[i].classList.add("active");
+        }
+      }
+    } catch (e) {}
+  })();
+</script>

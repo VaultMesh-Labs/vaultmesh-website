@@ -3,27 +3,60 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Verify | VaultMesh</title>
-  <link rel="stylesheet" href="/shared/ui.css?v=bone-v04" />
+  <title>Verify a Bundle | VaultMesh</title>
+  <meta name="description" content="Every VaultMesh bundle includes everything you need to verify it—offline, with standard tools." />
+  <link rel="stylesheet" href="/shared/ui.css?v=bone-v05" />
 </head>
-<body class="vm-attest">
+<body class="vm-attest route-verify">
   <!-- {{NAV}} -->
-  <div class="wrap">
-    <h1>Verify</h1>
-    <div class="sub">Independent verification entrypoint for manifest and attestation artifacts.</div>
-
-    <div class="grid">
-      <div class="card span12">
-        <div class="label">Verification Targets</div>
-        <div class="row"><div class="k">manifest</div><div class="v"><code>/MANIFEST.sha256</code></div></div>
-        <div class="row"><div class="k">build_proof</div><div class="v"><code>/BUILD_PROOF.txt</code></div></div>
-        <div class="row"><div class="k">attestation</div><div class="v"><code>/attest/attest.json</code></div></div>
-        <div class="row"><div class="k">latest_pointer</div><div class="v"><code>/attest/LATEST.txt</code></div></div>
+  <main class="page">
+    <section class="hero">
+      <h1>Verify a bundle.</h1>
+      <p class="subhead">
+        Verification is designed to work offline. If you can unzip it, you can verify it.
+      </p>
+      <div class="cta-row">
+        <a class="btn primary" href="/proof-pack/">Get a Proof Pack</a>
+        <a class="btn" href="/trust/">Trust model</a>
       </div>
-    </div>
+    </section>
 
-    <div class="footer">Build: {{BUILD_ID}}</div>
-  </div>
+    <section class="card">
+      <h2>What you need</h2>
+      <ul>
+        <li>The bundle zip (<code>bundle.zip</code>)</li>
+        <li>The verifier script (for example <code>VERIFY_ALL.sh</code>)</li>
+        <li>A standard shell + hash tools (no service dependencies)</li>
+      </ul>
+    </section>
+
+    <section class="steps">
+      <h2>3-step verification</h2>
+      <ol>
+        <li><strong>Unzip</strong> the bundle.</li>
+        <li><strong>Run</strong> the verifier script.</li>
+        <li><strong>Read</strong> the markers: green means verified; red means drift or mismatch.</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>What "good" looks like</h2>
+      <ul>
+        <li>Hashes match.</li>
+        <li>Receipts chain is continuous.</li>
+        <li>Verifier exits <code>0</code> and emits explicit success markers.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Failure modes (expected)</h2>
+      <ul>
+        <li>Missing files → bundle incomplete.</li>
+        <li>Hash mismatch → content changed.</li>
+        <li>Chain break → continuity violated.</li>
+      </ul>
+    </section>
+  </main>
   <!-- {{FOOTER}} -->
 </body>
 </html>

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Proof Pack Intake | VaultMesh</title>
+  <meta name="description" content="Proof Pack intake requirements, scope, timeline, and submission endpoint." />
+  <link rel="stylesheet" href="/shared/ui.css?v=bone-v05" />
+</head>
+<body class="vm-attest route-proof-pack-intake">
+  <!-- {{NAV}} -->
+  <div class="wrap">
+    <h1>VaultMesh - Proof Pack Intake</h1>
+    <div class="sub">Fixed scope intake contract for one boundary and one claim set. This is a static GET surface.</div>
+
+    <div class="card span12">
+      <div class="label">Status Bar</div>
+      <div class="row"><div class="k">surface</div><div class="v"><span class="badge PRESENT">PRESENT</span> STATIC_HTML</div></div>
+      <div class="row"><div class="k">mode</div><div class="v"><span class="badge PRESENT">PRESENT</span> NO_JS / NO_FETCH</div></div>
+      <div class="row"><div class="k">verify</div><div class="v"><span class="badge PRESENT">PRESENT</span> OFFLINE_COMPATIBLE</div></div>
+      <div class="row"><div class="k">route</div><div class="v"><code>/proof-pack/intake/</code></div></div>
+      <div class="row"><div class="k">post_handler</div><div class="v"><code>/proof-pack/intake</code> (separate)</div></div>
+    </div>
+
+    <div class="card span12">
+      <div class="label">Bundle</div>
+      <div class="row"><div class="k">offer</div><div class="v"><span class="badge PRESENT">PRESENT</span> fixed-scope sprint</div></div>
+      <div class="row"><div class="k">output</div><div class="v"><span class="badge PRESENT">PRESENT</span> verifier-ready bundle</div></div>
+      <div class="row"><div class="k">endpoint split</div><div class="v"><span class="badge PRESENT">PRESENT</span> static GET + POST handler</div></div>
+    </div>
+
+    <div class="grid">
+      <div class="card span6">
+        <div class="label">What We Need</div>
+        <div class="row"><div class="k">boundary</div><div class="v">service, environment, owner</div></div>
+        <div class="row"><div class="k">claim set</div><div class="v">primary claim(s) to prove</div></div>
+        <div class="row"><div class="k">constraints</div><div class="v">controls and operating limits</div></div>
+        <div class="row"><div class="k">audience</div><div class="v">audit, customer, regulator</div></div>
+      </div>
+
+      <div class="card span6">
+        <div class="label">What You Get</div>
+        <div class="row"><div class="k">scope lock</div><div class="v">single boundary + claim set</div></div>
+        <div class="row"><div class="k">bundle</div><div class="v">deterministic evidence archive</div></div>
+        <div class="row"><div class="k">walkthrough</div><div class="v">signature + digest verification</div></div>
+        <div class="row"><div class="k">handoff</div><div class="v">audit/dispute ready notes</div></div>
+      </div>
+
+      <div class="card span4">
+        <div class="label">Scope Guardrails</div>
+        <div class="row"><div class="k">boundaries</div><div class="v">1</div></div>
+        <div class="row"><div class="k">claim sets</div><div class="v">1</div></div>
+        <div class="row"><div class="k">silent changes</div><div class="v"><span class="badge INVALID">INVALID</span></div></div>
+      </div>
+
+      <div class="card span4">
+        <div class="label">Timeline</div>
+        <div class="row"><div class="k">intake accepted</div><div class="v">scope lock</div></div>
+        <div class="row"><div class="k">delivery window</div><div class="v">7-10 business days</div></div>
+        <div class="row"><div class="k">closeout</div><div class="v">verifier walkthrough</div></div>
+      </div>
+
+      <div class="card span4">
+        <div class="label">Submission Routes</div>
+        <!-- Canonical POST endpoints: /proof-pack/lead /proof-pack/intake /proof-pack/payment -->
+        <div class="row"><div class="k">Lead endpoint</div><div class="v"><code>/proof-pack/lead</code></div></div>
+        <div class="row"><div class="k">GET docs</div><div class="v"><a href="/proof-pack/intake/">/proof-pack/intake/</a></div></div>
+        <div class="row"><div class="k">POST endpoint</div><div class="v"><code>/proof-pack/intake</code></div></div>
+        <div class="row"><div class="k">support fallback</div><div class="v"><a href="/support/ticket/">/support/ticket/</a></div></div>
+      </div>
+
+      <div class="card span12">
+        <div class="label">Action Row</div>
+        <div class="row"><div class="k">action</div><div class="v">REQUEST_INTAKE</div></div>
+        <div class="row"><div class="k">path</div><div class="v"><code>/proof-pack/intake/</code></div></div>
+        <div class="row"><div class="k">expect</div><div class="v">BOUNDARY + CLAIMS_LOCK</div></div>
+      </div>
+
+      <div class="card span12">
+        <div class="label">Legend</div>
+        <div class="row"><div class="k">what this is</div><div class="v">static intake contract</div></div>
+        <div class="row"><div class="k">what this is not</div><div class="v">live submission API surface</div></div>
+        <div class="row"><div class="k">next action</div><div class="v">submit boundary and claim set</div></div>
+        <div class="row"><div class="k">evidence links</div><div class="v"><a href="/attest/">/attest/</a> | <a href="/verify/">/verify/</a></div></div>
+      </div>
+    </div>
+
+    <div class="footer">Static statement: this page documents the intake contract. Official submission occurs on <code>POST /proof-pack/intake</code>.</div>
+  </div>
+  <!-- {{FOOTER}} -->
+</body>
+</html>

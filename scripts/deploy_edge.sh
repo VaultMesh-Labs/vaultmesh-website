@@ -3,6 +3,8 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
+# shellcheck source=scripts/_lib/routes_required.sh
+source "${ROOT_DIR}/scripts/_lib/routes_required.sh"
 
 RC_PRECHECK=20
 RC_STAGING_UPLOAD=21
@@ -61,12 +63,70 @@ TS="$(date -u +%Y%m%dT%H%M%SZ)"
 REMOTE_STAGE="${TARGET_ROOT}.__staging_${TS}"
 REMOTE_OLD="${TARGET_ROOT}.__old_${TS}"
 REMOTE_SOT_TMP="/tmp/vaultmesh_sot_${TS}"
+BUILD_INFO_FILE="${ROOT_DIR}/dist/${VM_BUILD_INFO_PATH}"
+PARITY_LAST_OK_FILE="${ROOT_DIR}/${LAST_OK_JSON_REL:-reports/deploy_parity_guard_v1.LAST_OK.json}"
+RELEASE_ATTEST_CANON="${CANON_ROOT}/attest/RELEASE_ATTEST.json"
+RELEASE_ATTEST_STAGE="${ROOT_DIR}/dist/site/attest/RELEASE_ATTEST.json"
+RELEASE_TARGET_ID="${TARGET_HOST_ALIAS}:vaultmesh-root"
+RELEASE_BASE_URL="${SITE_BASE_URL:-https://vaultmesh.org}"
+
+json_get_first_string_file() {
+  local file="$1"
+  local key="$2"
+  awk -F'"' -v key="$key" '$2 == key { print $4; exit }' "${file}"
+}
 
 ./build.sh >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
 
 rm -rf dist/site
 mkdir -p dist/site
 rsync -a --delete --exclude '.DS_Store' --exclude 'site/' dist/ dist/site/ || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+bash scripts/deploy_parity_guard.sh || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+
+[[ -f "${BUILD_INFO_FILE}" ]] || fail "GUARD_NOT_FOR_CURRENT_BUILD" "${RC_PRECHECK}"
+[[ -f "${PARITY_LAST_OK_FILE}" ]] || fail "GUARD_NOT_FOR_CURRENT_BUILD" "${RC_PRECHECK}"
+DIST_BUILD_RUN_ID="$(json_get_first_string_file "${BUILD_INFO_FILE}" "build_run_id")"
+LAST_OK_BUILD_RUN_ID="$(json_get_first_string_file "${PARITY_LAST_OK_FILE}" "build_run_id")"
+if [[ -z "${DIST_BUILD_RUN_ID}" || -z "${LAST_OK_BUILD_RUN_ID}" || "${DIST_BUILD_RUN_ID}" != "${LAST_OK_BUILD_RUN_ID}" ]]; then
+  fail "GUARD_NOT_FOR_CURRENT_BUILD" "${RC_PRECHECK}"
+fi
+
+# --- ATTEST DEPLOY LAYER v1 ---
+bash scripts/deploy_release_attest.sh \
+  --dist-build-info "${BUILD_INFO_FILE}" \
+  --deploy-root "${CANON_ROOT}" \
+  --deploy-target-id "${RELEASE_TARGET_ID}" \
+  --deploy-host "${TARGET_HOST_ALIAS}" \
+  --base-url "${RELEASE_BASE_URL}" \
+  --caddyfile "${CANON_CADDY}" \
+  --out-json "${RELEASE_ATTEST_CANON}" \
+  >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+
+mkdir -p "$(dirname "${RELEASE_ATTEST_STAGE}")"
+cp "${RELEASE_ATTEST_CANON}" "${RELEASE_ATTEST_STAGE}" || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+
+ATTEST_TREE="$(json_get_first_string_file "${RELEASE_ATTEST_CANON}" "deployed_root_tree_sha256")"
+[[ -n "${ATTEST_TREE}" ]] || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+
+TMP_ATTEST="$(mktemp)"
+bash scripts/deploy_release_attest.sh \
+  --dist-build-info "${BUILD_INFO_FILE}" \
+  --deploy-root "${CANON_ROOT}" \
+  --deploy-target-id "${RELEASE_TARGET_ID}" \
+  --deploy-host "${TARGET_HOST_ALIAS}" \
+  --base-url "${RELEASE_BASE_URL}" \
+  --caddyfile "${CANON_CADDY}" \
+  --out-json "${TMP_ATTEST}" \
+  >/dev/null || { rm -f "${TMP_ATTEST}" || true; fail "PRECHECK_FAIL" "${RC_PRECHECK}"; }
+
+RECOMP_TREE="$(json_get_first_string_file "${TMP_ATTEST}" "deployed_root_tree_sha256")"
+rm -f "${TMP_ATTEST}" || true
+
+if [[ -z "${RECOMP_TREE}" || "${ATTEST_TREE}" != "${RECOMP_TREE}" ]]; then
+  printf 'DEPLOY_ATTEST_GUARD_FAIL expected=%s recomputed=%s\n' "${ATTEST_TREE}" "${RECOMP_TREE}" >&2
+  fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+fi
+# --- end ATTEST DEPLOY LAYER v1 ---
 
 bash scripts/sot_guard.sh --pre >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
 VM_HOOKS_UPSTREAM=127.0.0.1:65535 bash scripts/caddy_guard.sh --repo-snapshot deploy/edge/etc/caddy/Caddyfile >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"

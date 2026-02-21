@@ -3,26 +3,52 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Trust | VaultMesh</title>
-  <link rel="stylesheet" href="/shared/ui.css?v=bone-v04" />
+  <title>Trust Model | VaultMesh</title>
+  <meta name="description" content="You should be able to verify our claims offline, with your own tools, on your own schedule. Here's how we enforce that." />
+  <link rel="stylesheet" href="/shared/ui.css?v=bone-v05" />
 </head>
-<body class="vm-attest">
+<body class="vm-attest route-trust">
   <!-- {{NAV}} -->
-  <div class="wrap">
-    <h1>Trust</h1>
-    <div class="sub">Boundary contract for the public verification surface.</div>
-
-    <div class="grid">
-      <div class="card span12">
-        <div class="label">Trust Posture</div>
-        <div class="row"><div class="k">static_origin</div><div class="v">edge-served deterministic artifact</div></div>
-        <div class="row"><div class="k">host_split</div><div class="v">public static + explicit dynamic hosts</div></div>
-        <div class="row"><div class="k">route_lock</div><div class="v">allowlist proxy only; no wildcard upstream</div></div>
+  <main class="page">
+    <section class="hero">
+      <h1>Trust without trusting us.</h1>
+      <p class="subhead">
+        The goal is simple: you should be able to verify our claims offline—without our infrastructure, without our word.
+      </p>
+      <div class="cta-row">
+        <a class="btn primary" href="/verify/">Verify a bundle</a>
+        <a class="btn" href="/proof-pack/">Get the Proof Pack</a>
       </div>
-    </div>
+    </section>
 
-    <div class="footer">Build: {{BUILD_ID}}</div>
-  </div>
+    <section class="card">
+      <h2>Threat model (what can go wrong)</h2>
+      <ul>
+        <li>Systems drift. Documentation lies.</li>
+        <li>Logs get edited, deleted, or rewritten.</li>
+        <li>Vendors disappear. Links rot.</li>
+        <li>Audits become disputes.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>What we commit to</h2>
+      <ul>
+        <li><strong>Offline verification:</strong> bundles include verifier scripts and content hashes.</li>
+        <li><strong>Continuity:</strong> append-only receipts with chain linkage between events.</li>
+        <li><strong>Determinism:</strong> the same inputs produce the same outputs.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>What we don't do</h2>
+      <ul>
+        <li>No silent mutations.</li>
+        <li>No "trust our dashboard" as the only proof.</li>
+        <li>No opaque attestations you can't validate independently.</li>
+      </ul>
+    </section>
+  </main>
   <!-- {{FOOTER}} -->
 </body>
 </html>

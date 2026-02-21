@@ -3,37 +3,72 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>VaultMesh</title>
-  <link rel="stylesheet" href="/shared/ui.css?v=bone-v04" />
+  <title>VaultMesh — Proof you can hand to skeptics</title>
+  <meta name="description" content="VaultMesh generates offline-verifiable evidence bundles for AI compliance—so your claims survive audits, regulators, and time." />
+  <link rel="stylesheet" href="/shared/ui.css?v=bone-v05" />
 </head>
-<body class="vm-attest">
+<body class="vm-attest route-home">
   <!-- {{NAV}} -->
-  <div class="wrap">
-    <h1>VaultMesh Public Surface</h1>
-    <div class="sub">Deterministic static artifact for verification, support, and attestation continuity.</div>
-
-    <div class="grid">
-      <div class="card span12">
-        <div class="label">Public Routes</div>
-        <div class="row"><div class="k">proof_pack</div><div class="v"><a href="/proof-pack/">/proof-pack/</a></div></div>
-        <div class="row"><div class="k">support</div><div class="v"><a href="/support/">/support/</a></div></div>
-        <div class="row"><div class="k">trust</div><div class="v"><a href="/trust/">/trust/</a></div></div>
-        <div class="row"><div class="k">verify</div><div class="v"><a href="/verify/">/verify/</a></div></div>
-        <div class="row"><div class="k">attest</div><div class="v"><a href="/attest/">/attest/</a></div></div>
+  <main class="page">
+    <section class="hero">
+      <h1>Proof you can hand to skeptics.</h1>
+      <p class="subhead">
+        VaultMesh generates offline-verifiable evidence bundles for AI governance, compliance, and operations—so claims survive audits, disputes, and time.
+      </p>
+      <div class="cta-row">
+        <a class="btn primary" href="/proof-pack/">Get the Proof Pack</a>
+        <a class="btn" href="/verify/">See verification flow</a>
       </div>
+    </section>
 
-      <div class="card span6">
-        <div class="label">Proof</div>
-        <div class="muted">Public proof-pack surface and operational intake boundary.</div>
-      </div>
-      <div class="card span6">
-        <div class="label">Continuity</div>
-        <div class="muted">Attestation records and signature continuity published statically.</div>
-      </div>
-    </div>
+    <section class="proof-strip" aria-label="Proof features">
+      <span class="chip">Offline verification first</span>
+      <span class="chip">Append-only receipts</span>
+      <span class="chip">Deterministic bundles</span>
+      <span class="chip">No trust required</span>
+    </section>
 
-    <div class="footer">Build: {{BUILD_ID}}</div>
-  </div>
+    <section class="grid-3">
+      <div class="card">
+        <h2>Offline-verifiable</h2>
+        <p>Verify with hashes, receipts, and a bundled verifier—no platform trust required.</p>
+      </div>
+      <div class="card">
+        <h2>Chain-of-custody</h2>
+        <p>What changed, who authorized it, and the continuity link between events.</p>
+      </div>
+      <div class="card">
+        <h2>Audit-ready</h2>
+        <p>Portable bundles that withstand external review and adversarial scrutiny.</p>
+      </div>
+    </section>
+
+    <section class="steps">
+      <h2>How it works</h2>
+      <ol>
+        <li><strong>Define the claim</strong> (what must be true).</li>
+        <li><strong>Generate artifacts</strong> + append-only receipts.</li>
+        <li><strong>Publish a bundle</strong> with a verifier script.</li>
+        <li><strong>Anyone verifies</strong>, offline, anytime.</li>
+      </ol>
+    </section>
+
+    <section class="faq">
+      <h2>FAQ</h2>
+      <details>
+        <summary>What do I receive?</summary>
+        <p>A zipped evidence bundle + verifier script + receipts + hashes + clear output markers.</p>
+      </details>
+      <details>
+        <summary>Who is this for?</summary>
+        <p>AI governance/compliance teams, consultancies, and operators who need defensible proof.</p>
+      </details>
+      <details>
+        <summary>What's the fastest start?</summary>
+        <p>The Proof Pack Sprint: fixed scope, fixed price, verifiable output.</p>
+      </details>
+    </section>
+  </main>
   <!-- {{FOOTER}} -->
 </body>
 </html>
