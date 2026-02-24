@@ -63,7 +63,7 @@ Verified against public resolvers `1.1.1.1` and `8.8.8.8`:
 
 Host split behavior:
 
-- `https://vaultmesh.org/support/status?...` -> `404` (expected; no dynamic support on static host)
+- `vaultmesh.org support/status?...` -> `404` (expected; no dynamic support on static host)
 - `https://hooks.vaultmesh.org/_hooks/mailgun` (HEAD/GET) -> app-defined `405` (expected; no routing drift)
 - `https://hooks.vaultmesh.org/not-allowed` -> `404` (expected)
 - `https://support.vaultmesh.org/support/status?...` -> app-defined `403` for unknown ticket (expected; upstream reachable)
@@ -87,4 +87,3 @@ Host split behavior:
 - Use quoted URLs in zsh when query strings are present, for example:
   - `curl -I 'https://support.vaultmesh.org/support/status?ticket_id=test&t=test'`
 - Local resolver hiccups can still occur temporarily; public resolver checks (`@1.1.1.1`, `@8.8.8.8`) are authoritative for publication state.
-
