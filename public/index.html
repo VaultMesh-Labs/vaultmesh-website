@@ -3,72 +3,75 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>VaultMesh — Verifiable Compliance Infrastructure</title>
-  <meta name="description" content="VaultMesh turns regulatory claims into machine-checkable proof artifacts. Book a 15-minute Proof Pack call." />
-  <link rel="stylesheet" href="/shared/ui.css?v=bone-v05" />
+  <title>VaultMesh — Proof > Power</title>
+  <meta name="description" content="VaultMesh delivers continuous, cryptographically verifiable integrity for sovereign systems: state continuity, signed artifacts, and adversarial validation." />
+  <link rel="stylesheet" href="/shared/ui.css?v=scc-v1" />
 </head>
-<body class="vm-attest route-home">
+<body class="vm-attest route-home" data-kind="home">
   <!-- {{NAV}} -->
   <main class="page">
     <section class="hero">
-      <h1>Verifiable Compliance Infrastructure for AI Systems</h1>
+      <h1>Proof > Power.</h1>
       <p class="subhead">
-        VaultMesh turns regulatory claims into machine-checkable proof artifacts.
-        Instead of PDFs and policy decks, you get cryptographic evidence that can be independently verified.
+        Continuous, offline-verifiable integrity for systems that can't afford trust.
       </p>
-      <div class="cta-row">
-        <a class="btn primary" href="/proof-pack/intake/">Book a 15-Minute Proof Pack Call</a>
+            <div class="cta-row home-cta">
+        <a class="btn primary" href="/offer/">See the Offer</a>
+        <div class="home-cta-secondary">
+          <a class="btn secondary" href="/verify/">Verify</a>
+          <a class="btn secondary" href="/support/">Support</a>
+        </div>
       </div>
-      <p class="vm-fail-note">Proof Pack Sprint: 30 days · fixed scope · verifiable deliverables.</p>
     </section>
 
-    <section class="card">
-      <h2>The problem</h2>
-      <ul>
-        <li>Controls are described, not proven.</li>
-        <li>Audit evidence is assembled manually.</li>
-        <li>Regulators must trust documentation rather than verify state.</li>
-      </ul>
-    </section>
-
-    <section class="grid-2">
+    <div class="grid-2">
       <div class="card">
-        <h2>What VaultMesh does</h2>
+        <h2>What VaultMesh is</h2>
+        <p>
+          A system for <strong>continuous integrity</strong>: state continuity, signed artifacts, and
+          adversarial checks that make claims machine-verifiable.
+        </p>
         <ul>
-          <li>Deterministic audit bundles</li>
-          <li>Cryptographic receipts</li>
-          <li>Merkle-rooted state snapshots</li>
-          <li>Offline-verifiable proof packages</li>
-          <li>Chain-anchored release attestations</li>
+          <li>Hash-chained ledgers (append-only receipts)</li>
+          <li>Ed25519 signatures (detached, offline verifiable)</li>
+          <li>Equivocation detection (fork / replay awareness)</li>
+          <li>Portable evidence bundles (export / ingest / dispute packs)</li>
         </ul>
       </div>
-      <div class="card">
-        <h2>Who it serves</h2>
-        <ul>
-          <li>AI governance &amp; compliance consultancies</li>
-          <li>Regulated AI vendors</li>
-          <li>SupTech / supervisory technology teams</li>
-          <li>Procurement risk evaluators</li>
-        </ul>
-      </div>
-    </section>
 
-    <section class="card">
-      <h2>Entry point: Proof Pack Sprint</h2>
-      <p>
-        A fixed-scope, 30-day engagement that converts one compliance surface into a fully verifiable proof bundle.
-      </p>
-      <ul>
-        <li>Cryptographically sealed audit artifact</li>
-        <li>Independent verification instructions</li>
-        <li>Anchored public integrity reference</li>
-        <li>Repeatable proof pipeline</li>
-      </ul>
-      <div class="cta-row">
-        <a class="btn primary" href="/proof-pack/">View Proof Pack</a>
-        <a class="btn" href="/attest/">View Live Attest Surface</a>
+      <div class="card">
+        <h2>What VaultMesh is not</h2>
+        <p>
+          Not a marketing dashboard. Not "trust me." Not a single point of failure.
+          This surface is intentionally minimal so verification stays simple.
+        </p>
+        <pre class="code">invariants:
+  - offline verification works
+  - state continuity is monotonic
+  - receipts are append-only
+  - distrust is expected</pre>
       </div>
-    </section>
+    </div>
+
+    <div class="grid-3">
+      <div class="card">
+        <h2>Support</h2>
+        <p>Structured intake and per-ticket status tracking for active engagements.</p>
+        <div class="cta-row"><a class="btn" href="/support/">Open Support</a></div>
+      </div>
+
+      <div class="card">
+        <h2>Status</h2>
+        <p>Signed health digest and published artifacts for external verification.</p>
+        <div class="cta-row"><a class="btn" href="/status/">Status</a></div>
+      </div>
+
+      <div class="card">
+        <h2>Security</h2>
+        <p>Disclosure path for vulnerabilities. Evidence first. Impact scoped.</p>
+        <div class="cta-row"><a class="btn" href="/security/">Disclosure</a></div>
+      </div>
+    </div>
   </main>
   <!-- {{FOOTER}} -->
 </body>

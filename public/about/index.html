@@ -4,34 +4,79 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>About — VaultMesh</title>
-  <meta name="description" content="Why VaultMesh exists: convert compliance narratives into verifiable proof." />
-  <link rel="stylesheet" href="/shared/ui.css?v=bone-v05" />
+  <meta name="description" content="VaultMesh delivers verification you can carry: signed state, tamper-evident receipts, and offline verification that survives distrust." />
+  <link rel="stylesheet" href="/shared/ui.css?v=scc-v1" />
 </head>
-<body class="vm-attest route-about">
+<body class="vm-attest route-about" data-kind="about">
   <!-- {{NAV}} -->
   <main class="page">
     <section class="hero">
-      <h1>Why VaultMesh Exists</h1>
-      <p class="subhead">AI systems increasingly operate inside regulated environments. Compliance remains narrative-based. VaultMesh converts institutional trust into verifiable proof.</p>
+      <h1>Verification You Can Carry</h1>
+      <p class="subhead">
+        VaultMesh builds infrastructure where claims are machine-verifiable,
+        evidence is portable, and trust is earned through cryptographic proof — not promises.
+      </p>
     </section>
 
     <section class="card">
-      <h2>The thesis</h2>
-      <ul>
-        <li>Machine-verifiable state</li>
-        <li>Evidence continuity</li>
-        <li>Drift detection</li>
-        <li>Anti-tamper audit trails</li>
-        <li>Independent reproducibility</li>
-      </ul>
-      <p class="vm-fail-note">VaultMesh builds this infrastructure as deterministic artifacts that survive distrust.</p>
+      <h2>The problem</h2>
+      <p>
+        Regulated systems depend on compliance reports that are written once
+        and never verified. Audits are periodic. Evidence is locked in vendor
+        dashboards. When something goes wrong, reconstructing truth is
+        expensive, slow, and often impossible.
+      </p>
+      <p>
+        VaultMesh exists because <strong>proof should be continuous, portable,
+        and independently verifiable</strong> — not a quarterly PDF.
+      </p>
+    </section>
+
+    <div class="grid-2">
+      <div class="card">
+        <h2>Principles</h2>
+        <ul>
+          <li>State continuity is monotonic — append-only, no rewrites</li>
+          <li>Verification works offline — no phone-home required</li>
+          <li>Receipts are portable — export, ingest, dispute</li>
+          <li>Distrust is expected — adversarial validation by default</li>
+          <li>Minimal surface — complexity is the enemy of verification</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>How it works</h2>
+        <ul>
+          <li>Hash-chained ledgers (append-only receipts)</li>
+          <li>Ed25519 signatures (detached, offline verifiable)</li>
+          <li>Equivocation detection (fork and replay awareness)</li>
+          <li>Deterministic builds (reproducible artifact assembly)</li>
+          <li>Portable evidence bundles (export / ingest / dispute packs)</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="card">
+      <h2>Trust boundaries</h2>
+      <p>
+        VaultMesh does not ask you to trust VaultMesh. Every claim is
+        backed by a signed artifact that you can verify independently.
+        The verification tools are open. The receipts are portable.
+        If we disappear tomorrow, your proof still works.
+      </p>
+      <pre class="code">trust_model:
+  signing: Ed25519 (detached)
+  chains: SHA-256 (append-only)
+  anchors: RFC 3161, ETH, BTC (optional)
+  verification: offline, no vendor dependency
+  evidence: portable bundles w/ dispute path</pre>
     </section>
 
     <section class="card">
       <h2>The long arc</h2>
-      <p><strong>2025–2030</strong> — Regulatory infrastructure for AI governance.</p>
-      <p><strong>2030–2040</strong> — Federated proof and supervisory technology.</p>
-      <p><strong>2040+</strong> — Proof-driven institutional systems.</p>
+      <p><strong>2025–2030</strong> — Regulatory infrastructure for AI governance and sovereign compliance.</p>
+      <p><strong>2030–2040</strong> — Federated proof networks and supervisory technology.</p>
+      <p><strong>2040+</strong> — Proof-driven institutional systems at scale.</p>
     </section>
   </main>
   <!-- {{FOOTER}} -->

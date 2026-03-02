@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Contact — VaultMesh</title>
+  <meta name="description" content="Contact VaultMesh. Structured intake for inquiries, engagements, and security disclosures." />
+  <link rel="stylesheet" href="/shared/ui.css?v=scc-v1" />
+</head>
+<body class="vm-attest route-contact" data-kind="contact">
+  <!-- {{NAV}} -->
+  <main class="page">
+    <section class="hero">
+      <h1>Contact</h1>
+      <p class="subhead">
+        Structured intake. Every submission is receipted.
+      </p>
+    </section>
+
+    <section class="card">
+      <form method="post" action="https://hooks.vaultmesh.org/webhook/contact" enctype="application/x-www-form-urlencoded">
+        <input type="hidden" name="form_id" value="contact_v1" />
+        <input type="hidden" name="route" value="/contact/" />
+
+        <div>
+          <label for="c-name">Name</label>
+          <input id="c-name" type="text" name="name" required />
+        </div>
+
+        <div>
+          <label for="c-email">Email</label>
+          <input id="c-email" type="email" name="email" required />
+        </div>
+
+        <div>
+          <label for="c-subject">Subject</label>
+          <select id="c-subject" name="subject">
+            <option value="general">General inquiry</option>
+            <option value="engagement">Engagement / partnership</option>
+            <option value="security">Security disclosure</option>
+            <option value="support">Support request</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="c-message">Message</label>
+          <textarea id="c-message" name="message" rows="6" required></textarea>
+        </div>
+
+        <button type="submit" class="btn primary">Send</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Direct channels</h2>
+      <ul>
+        <li><strong>General / offer inquiries</strong> — <code>hello@vaultmesh.org</code></li>
+        <li><strong>Security vulnerabilities</strong> — <code>security@vaultmesh.org</code> · <a href="/security/">Disclosure process</a></li>
+        <li><strong>Support requests</strong> — <a href="/support/">Open a ticket</a> (don't email support — use structured intake)</li>
+        <li><strong>Proof verification</strong> — <a href="/status/">Status portal</a> · <a href="/attest/">Verify this build</a></li>
+      </ul>
+    </section>
+  </main>
+  <!-- {{FOOTER}} -->
+</body>
+</html>

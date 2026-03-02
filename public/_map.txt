@@ -1,0 +1,36 @@
+# vaultmesh.org — site map
+# Generated from canonical route set. Static artifact.
+
+# Pages
+/                         index.html
+/about/                   about/index.html
+/offer/                   offer/index.html
+/contact/                 contact/index.html
+/support/                 support/index.html
+/support/open/            support/open/index.html
+/status/                  status/index.html
+/verify-console/          verify-console/index.html
+/security/                security/index.html
+/legal/privacy/           legal/privacy/index.html
+/legal/terms/             legal/terms/index.html
+
+# Proof artifacts
+/attest/                  attest/index.html
+/attest/attest.json       attestation bundle
+/attest/LATEST.txt        latest release pointer
+/attest/ROOT_HISTORY.txt  hash chain history
+/attest/ROOT_HISTORY.sig  detached Ed25519 signature
+
+# Build artifacts
+/MANIFEST.sha256          file manifest (sha256 checksums)
+/BUILD_PROOF.txt          manifest hash receipt
+/BUILD_INFO.json          build metadata
+
+# Site identity (machine-readable, excluded from manifest)
+/.well-known/vaultmesh-site.json  build heartbeat for external probes
+
+# Parity (machine-readable, included in manifest — covered by signature)
+/.well-known/vaultmesh-parity.json  depot index claim for CC parity check
+
+# Support (noindex)
+/support/ticket/          support/ticket/index.html

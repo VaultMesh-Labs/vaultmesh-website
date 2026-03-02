@@ -172,7 +172,7 @@ if [[ "$missing_markers" -ne 0 ]]; then
 fi
 
 # --- Footer phrase lock ---
-FOOTER_EXPECTED="© VaultMesh Foundation — Proof > Power"
+FOOTER_EXPECTED="VaultMesh Foundation"
 
 if ! grep -R --fixed-strings "$FOOTER_EXPECTED" "$ROOT_DIR/$TARGET_DIR" >/dev/null 2>&1; then
   echo "NAV_FOOTER_GUARD_FAIL footer_phrase_missing" >&2

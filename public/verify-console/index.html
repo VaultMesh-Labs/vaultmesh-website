@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Verification Console | VaultMesh</title>
+  <meta name="description" content="Static verification console for live and offline VaultMesh proof checks." />
+  <link rel="stylesheet" href="/shared/ui.css?v=scc-v1" />
+</head>
+<body class="vm-attest route-verify-console" data-kind="verify-console">
+  <!-- {{NAV}} -->
+  <main class="page">
+    <section class="hero">
+      <h1>Verification Console</h1>
+      <p class="subhead">
+        Static console. No JavaScript required. Verification is carried by artifacts, not runtime scripts.
+      </p>
+      <div class="cta-row">
+        <a class="btn primary" href="/attest/">Open Attest Surface</a>
+        <a class="btn" href="/status/">Open Proof Status</a>
+        <a class="btn" href="/verify/">Bundle Verification Guide</a>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Live verification</h2>
+      <div class="row"><div class="k">attestation</div><div class="v"><a href="/attest/">Attestation</a></div></div>
+      <div class="row"><div class="k">status</div><div class="v"><a href="/status/">Status</a></div></div>
+      <div class="row"><div class="k">expectation</div><div class="v"><code>MANIFEST</code> reachable, signed artifacts present, links deterministic.</div></div>
+    </section>
+
+    <section class="card">
+      <h2>Offline verification</h2>
+      <div class="row"><div class="k">entrypoint</div><div class="v"><a href="/verify/">Verification</a></div></div>
+      <div class="row"><div class="k">run</div><div class="v"><code>./VERIFY_ALL.sh</code> (bundle-local)</div></div>
+      <div class="row"><div class="k">result</div><div class="v"><code>OK=1</code> markers and receipt continuity.</div></div>
+    </section>
+
+    <section class="card">
+      <h2>Surface contracts</h2>
+      <div class="row"><div class="k">ui</div><div class="v"><code>UI_CONTRACT_OK=1</code></div></div>
+      <div class="row"><div class="k">footer</div><div class="v"><code>FOOTER_CONTRACT_OK=1</code></div></div>
+      <div class="row"><div class="k">route</div><div class="v"><code>ROUTE_IDENTITY_OK=1</code></div></div>
+      <div class="row"><div class="k">kind</div><div class="v"><code>PAGE_KIND_OK=1</code></div></div>
+      <div class="row"><div class="k">deploy</div><div class="v"><code>DEPLOY_CONTRACT_OK=1</code></div></div>
+    </section>
+  </main>
+  <!-- {{FOOTER}} -->
+</body>
+</html>

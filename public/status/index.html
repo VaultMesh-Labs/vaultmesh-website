@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Proof Status — VaultMesh</title>
+  <meta name="description" content="VaultMesh proof status portal. Signed health digest and published artifacts for external verification." />
+  <link rel="stylesheet" href="/shared/ui.css?v=scc-v1" />
+</head>
+<body class="vm-attest route-status" data-kind="status">
+  <!-- {{NAV}} -->
+  <main class="page">
+    <section class="hero">
+      <h1>Proof Status</h1>
+      <p class="subhead">
+        Signed health digest and published artifacts for external verification.
+        No vendor dashboard — static evidence you can inspect.
+      </p>
+    </section>
+
+    <div class="card span12 status-entry-card">
+      <div class="label">Next action</div>
+
+      <div class="cta-row status-cta">
+        <a class="btn primary" href="/verify/">Verify this build</a>
+        <div class="status-cta-secondary">
+          <a class="btn secondary" href="/attest/">Open attest surface</a>
+          <a class="btn secondary" href="/verify-console/">Verification Console</a>
+        </div>
+      </div>
+
+      <div class="muted" style="margin-top:10px">
+        Static state digest. No origin API calls. Links are expected to 404 until published.
+      </div>
+    </div>
+
+    <details class="card span12 status-rails-card">
+      <summary class="label">Current state</summary>
+      <p>
+        The SCC (Sovereign Command Center) continuously collects integrity signals
+        and emits a signed state digest. The current state is published here as a
+        static artifact — no API calls, no live queries.
+      </p>
+      <pre class="code">signals:
+  drift: repo cleanliness across all tracked targets
+  verify: bundle integrity (SHA-256 manifest check)
+  anchors: RFC 3161 / ETH / BTC proof anchors
+  policy: capture detection (structural weakening)</pre>
+    </details>
+
+    <details class="card span12 status-rails-card">
+      <summary class="label">Published artifacts</summary>
+      <ul>
+        <li><a href="/attest/attest.json"><strong>attest.json</strong></a> — Current attestation bundle</li>
+        <li><a href="/attest/LATEST.txt"><strong>LATEST.txt</strong></a> — Latest release pointer</li>
+        <li><a href="/attest/ROOT_HISTORY.txt"><strong>ROOT_HISTORY.txt</strong></a> — Hash chain history</li>
+        <li><a href="/attest/ROOT_HISTORY.sig"><strong>ROOT_HISTORY.sig</strong></a> — Detached Ed25519 signature</li>
+      </ul>
+      <p style="opacity:0.7;margin-top:0.5rem">
+        If an artifact is not yet published, the link will 404 — that is the expected state
+        until the next ceremony promotes it.
+      </p>
+    </details>
+
+    <details class="card span12 status-rails-card">
+      <summary class="label">How to verify</summary>
+      <ol>
+        <li>Download <a href="/attest/attest.json">attest.json</a>, <a href="/attest/ROOT_HISTORY.txt">ROOT_HISTORY.txt</a>, and <a href="/attest/ROOT_HISTORY.sig">ROOT_HISTORY.sig</a></li>
+        <li>Verify the detached Ed25519 signature over ROOT_HISTORY.txt</li>
+        <li>Check hash chain continuity (seq linkage in ROOT_HISTORY)</li>
+        <li>Inspect health, drift, and continuity fields in attest.json</li>
+      </ol>
+      <p style="opacity:0.7;margin-top:0.5rem">No VaultMesh software required. Standard crypto primitives only.</p>
+    </details>
+
+    <details class="card span12 status-rails-card">
+      <summary class="label">Phases</summary>
+      <pre class="code">nigredo:    integrity failure (verify RED, chain break)
+albedo:     verification uncertain
+citrinitas: verified, operational debt possible
+rubedo:     all green — drift clean, anchors confirmed</pre>
+    </details>
+  </main>
+  <!-- {{FOOTER}} -->
+</body>
+</html>

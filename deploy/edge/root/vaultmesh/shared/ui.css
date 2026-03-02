@@ -1,24 +1,101 @@
-/* VaultMesh UI Skin v1 - bone-v04 */
-:root {
-  --vm-bg: #0b0f14;
-  --vm-surface: #101722;
-  --vm-surface-2: #0d141f;
-  --vm-ink: #e8decd;
-  --vm-muted: #b8ad9d;
-  --vm-line: rgba(232, 222, 205, 0.24);
-  --vm-accent: #d9c7a7;
-  --vm-accent-2: #9ed7ff;
-  --vm-ok: #34d399;
-  --vm-warn: #fbbf24;
-  --vm-bad: #fb7185;
-  --vm-radius: 14px;
-  --vm-max: 980px;
-  --vm-shadow: 0 16px 44px rgba(0, 0, 0, 0.42);
-  --vm-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --vm-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --border: var(--vm-line);
-  --font-mono: var(--vm-mono);
+/* VaultMesh UI Skin — scc-v1 (SCC gold / industrial) */
+
+/* ================================
+   SELF-HOSTED FONTS
+   ================================ */
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('/shared/fonts/ibm-plex-mono-300.woff2') format('woff2');
 }
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/shared/fonts/ibm-plex-mono-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/shared/fonts/ibm-plex-mono-500.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/shared/fonts/ibm-plex-mono-600.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Cinzel';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/shared/fonts/cinzel-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Cinzel';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/shared/fonts/cinzel-latin.woff2') format('woff2');
+}
+
+/* ================================
+   ROOT TOKENS — SCC gold palette
+   ================================ */
+
+:root {
+  --gold: #d4af37;
+  --gold-dim: rgba(212,175,55,0.3);
+  --gold-glow: rgba(212,175,55,0.15);
+
+  --vm-bg: #0a0a0f;
+  --vm-surface: #111118;
+  --vm-surface-2: #16161f;
+  --vm-ink: #c8c4b8;
+  --vm-muted: rgba(200,196,184,0.5);
+  --vm-line: rgba(212,175,55,0.12);
+  --vm-accent: #d4af37;
+  --vm-accent-2: #60a5fa;
+  --vm-ok: #4ade80;
+  --vm-warn: #fbbf24;
+  --vm-bad: #ef4444;
+  --vm-purple: #a78bfa;
+  --vm-cyan: #22d3ee;
+  --vm-radius: 2px;
+  --vm-max: 980px;
+  --vm-shadow: 0 12px 40px rgba(0,0,0,0.55);
+  --vm-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --vm-serif: 'Cinzel', serif;
+
+  /* backward-compat aliases */
+  --border: var(--vm-line);
+  --border-active: rgba(212,175,55,0.35);
+  --font-mono: var(--vm-mono);
+
+  /* attest surface (aligned to SCC) */
+  --vm-attest-bg: #0a0a0f;
+  --vm-attest-panel: #111118;
+  --vm-attest-text: #c8c4b8;
+  --vm-attest-line: rgba(212,175,55,0.12);
+  --vm-attest-line-soft: rgba(212,175,55,0.06);
+}
+
+/* ================================
+   RESET + BASE
+   ================================ */
 
 * {
   box-sizing: border-box;
@@ -32,22 +109,68 @@ body {
 body,
 .vm-bg {
   margin: 0;
-  font-family: var(--vm-sans);
+  font-family: var(--vm-mono);
+  font-size: 13px;
+  line-height: 1.55;
+  letter-spacing: 0.02em;
   color: var(--vm-ink);
-  background:
-    radial-gradient(1200px 640px at 18% -10%, rgba(217, 199, 167, 0.12), transparent 55%),
-    radial-gradient(900px 560px at 80% -8%, rgba(158, 215, 255, 0.11), transparent 52%),
-    var(--vm-bg);
+  background: var(--vm-bg);
 }
 
+/* ================================
+   CRT EFFECTS
+   ================================ */
+
+/* Noise texture */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.5;
+}
+
+/* Scanline overlay */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ================================
+   TYPOGRAPHY
+   ================================ */
+
 a {
-  color: var(--vm-accent-2);
+  color: var(--vm-accent);
   text-decoration: none;
 }
 
 a:hover {
+  color: var(--gold);
   text-decoration: underline;
 }
+
+h1, h2, h3 {
+  font-family: var(--vm-serif);
+  letter-spacing: 0.04em;
+  color: var(--vm-ink);
+}
+
+/* ================================
+   LAYOUT
+   ================================ */
 
 .vm-container {
   max-width: var(--vm-max);
@@ -55,17 +178,39 @@ a:hover {
   padding: 40px 18px 66px;
 }
 
+/* ================================
+   PANELS + CARDS — SCC industrial
+   ================================ */
+
 .vm-panel,
 .vm-card {
   border: 1px solid var(--vm-line);
   border-radius: var(--vm-radius);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.015)), var(--vm-surface);
+  background: var(--vm-surface);
   box-shadow: var(--vm-shadow);
   padding: 18px;
+  position: relative;
+}
+
+.vm-panel::before,
+.vm-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.vm-panel:hover::before,
+.vm-card:hover::before {
+  opacity: 1;
 }
 
 .vm-card {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0.012)), var(--vm-surface-2);
+  background: var(--vm-surface-2);
 }
 
 .vm-panel-header {
@@ -79,7 +224,8 @@ a:hover {
 .vm-title {
   margin: 0;
   font-size: clamp(1.4rem, 3.4vw, 2rem);
-  letter-spacing: -0.02em;
+  font-family: var(--vm-serif);
+  letter-spacing: 0.04em;
   color: var(--vm-ink);
 }
 
@@ -93,7 +239,7 @@ a:hover {
   display: inline-flex;
   align-items: center;
   padding: 5px 10px;
-  border-radius: 999px;
+  border-radius: var(--vm-radius);
   border: 1px solid var(--vm-line);
   color: var(--vm-ink);
   font-family: var(--vm-mono);
@@ -103,19 +249,19 @@ a:hover {
 }
 
 .vm-chip-neutral {
-  background: rgba(232, 222, 205, 0.08);
+  background: rgba(212,175,55,0.05);
 }
 
 .vm-chip-ok {
-  border-color: rgba(52, 211, 153, 0.52);
+  border-color: rgba(74,222,128,0.52);
 }
 
 .vm-chip-warn {
-  border-color: rgba(251, 191, 36, 0.52);
+  border-color: rgba(251,191,36,0.52);
 }
 
 .vm-chip-bad {
-  border-color: rgba(251, 113, 133, 0.55);
+  border-color: rgba(239,68,68,0.55);
 }
 
 .vm-list {
@@ -164,28 +310,118 @@ a:hover {
   color: var(--vm-muted);
 }
 
+/* ================================
+   NAV — SCC terminal style
+   ================================ */
+
 .vm-nav {
-  margin-top: 16px;
   display: flex;
-  gap: 14px;
   align-items: center;
+  gap: 1.75rem;
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.9rem 0;
+  -webkit-overflow-scrolling: touch;
 }
 
-.vm-navlinks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 14px;
-  margin-top: 14px;
+.vm-nav::-webkit-scrollbar {
+  display: none;
+}
+.vm-nav {
+  scrollbar-width: none;
 }
 
-.vm-navlinks a {
+.vm-brand {
+  font-family: var(--vm-serif);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+  opacity: 0.92;
+}
+
+.vm-nav-link {
   color: var(--vm-ink);
-  opacity: 0.86;
+  text-decoration: none;
+  opacity: 0.6;
+  transition: opacity 200ms ease, color 200ms ease;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.vm-navlinks a.active {
+.vm-nav-link:hover {
   opacity: 1;
-  text-decoration: underline;
+  color: var(--gold);
+  text-decoration: none;
+}
+
+.vm-nav-link.active {
+  opacity: 1;
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+
+.vm-nav-cta {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  border-radius: var(--vm-radius);
+  border: 1px solid var(--gold-dim);
+  background: rgba(212,175,55,0.05);
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 600;
+  text-decoration: none;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: background 200ms ease, border-color 200ms ease;
+}
+
+.vm-nav-cta:hover {
+  background: rgba(212,175,55,0.1);
+  border-color: var(--border-active);
+  text-decoration: none;
+}
+
+/* ================================
+   FOOTER — SCC terminal bar
+   ================================ */
+
+.vm-footer {
+  border-top: 1px solid var(--vm-line);
+  margin-top: 80px;
+  padding: 10px 24px;
+  font-family: var(--vm-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.vm-footer-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+
+.vm-footer-muted {
+  opacity: 0.4;
+  margin-top: 2px;
+}
+
+.vm-footer-bottom {
+  max-width: 1100px;
+  margin: 8px auto 0;
+  opacity: 0.3;
+  color: var(--gold);
 }
 
 @media (max-width: 760px) {
@@ -199,83 +435,8 @@ a:hover {
 }
 
 /* ================================
-   NAV_FOOTER_v0
+   ATTEST_v1 (SCC-aligned console skin)
    ================================ */
-
-.vm-nav {
-  border-bottom: 1px solid var(--border);
-  padding: 12px 24px;
-  font-family: var(--font-mono);
-}
-
-.vm-nav-inner {
-  max-width: 1100px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.vm-brand a {
-  text-decoration: none;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
-
-.vm-links {
-  display: flex;
-  gap: 20px;
-}
-
-.vm-links a,
-.vm-external a {
-  text-decoration: none;
-  opacity: 0.8;
-}
-
-.vm-links a:hover,
-.vm-external a:hover {
-  opacity: 1;
-}
-
-.vm-footer {
-  border-top: 1px solid var(--border);
-  margin-top: 80px;
-  padding: 24px;
-  font-family: var(--font-mono);
-  font-size: 13px;
-}
-
-.vm-footer-inner {
-  max-width: 1100px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  gap: 24px;
-}
-
-.vm-footer-muted {
-  opacity: 0.6;
-  margin-top: 4px;
-}
-
-.vm-footer-bottom {
-  max-width: 1100px;
-  margin: 20px auto 0;
-  opacity: 0.5;
-}
-
-/* ================================
-   ATTEST_v1_1 (shared skin)
-   ================================ */
-
-:root {
-  --vm-attest-bg: #050505;
-  --vm-attest-panel: #0b0b0b;
-  --vm-attest-text: #eaeaea;
-  --vm-attest-line: #222;
-  --vm-attest-line-soft: #1a1a1a;
-}
 
 .vm-attest {
   margin: 0;
@@ -285,7 +446,7 @@ a:hover {
 }
 
 .vm-attest a {
-  color: var(--vm-attest-text);
+  color: var(--gold);
 }
 
 .vm-attest .wrap {
@@ -296,27 +457,49 @@ a:hover {
 
 .vm-attest h1 {
   font-size: 18px;
+  font-family: var(--vm-serif);
   margin: 0 0 8px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+  text-shadow: 0 0 30px var(--gold-glow);
 }
 
 .vm-attest .sub {
-  opacity: 0.8;
-  font-size: 12px;
+  opacity: 0.6;
+  font-size: 11px;
   margin-bottom: 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .vm-attest .grid {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  gap: 10px;
+  gap: 1px;
+  background: var(--vm-line);
 }
 
 .vm-attest .card {
   border: 1px solid var(--vm-attest-line);
-  border-radius: 12px;
+  border-radius: var(--vm-radius);
   padding: 12px;
   background: var(--vm-attest-panel);
+  position: relative;
+}
+
+.vm-attest .card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.vm-attest .card:hover::before {
+  opacity: 1;
 }
 
 .vm-attest .span6 {
@@ -332,9 +515,11 @@ a:hover {
 }
 
 .vm-attest .label {
-  font-size: 11px;
-  opacity: 0.8;
+  font-size: 8px;
+  opacity: 0.5;
   margin-bottom: 8px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
 }
 
 .vm-attest .row {
@@ -350,12 +535,14 @@ a:hover {
 }
 
 .vm-attest .k {
-  font-size: 12px;
-  opacity: 0.9;
+  font-size: 10px;
+  opacity: 0.6;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .vm-attest .v {
-  font-size: 12px;
+  font-size: 11px;
   opacity: 0.95;
   max-width: 70%;
   overflow: hidden;
@@ -364,43 +551,50 @@ a:hover {
 }
 
 .vm-attest .badge {
-  font-size: 11px;
+  font-size: 9px;
   padding: 2px 8px;
-  border-radius: 999px;
-  border: 1px solid #333;
+  border-radius: var(--vm-radius);
+  border: 1px solid rgba(212,175,55,0.2);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .vm-attest .PRESENT {
-  border-color: #2a2;
+  border-color: rgba(74,222,128,0.5);
+  color: #4ade80;
 }
 
 .vm-attest .MISSING {
-  border-color: #555;
-  opacity: 0.7;
+  border-color: rgba(200,196,184,0.15);
+  opacity: 0.4;
 }
 
 .vm-attest .UNKNOWN {
-  border-color: #aa2;
+  border-color: rgba(212,175,55,0.4);
+  color: var(--gold);
 }
 
 .vm-attest .INVALID {
-  border-color: #a22;
+  border-color: rgba(239,68,68,0.5);
+  color: #ef4444;
 }
 
 .vm-attest .muted {
-  opacity: 0.75;
+  opacity: 0.5;
 }
 
 .vm-attest .footer {
   margin-top: 14px;
-  font-size: 11px;
-  opacity: 0.7;
+  font-size: 9px;
+  opacity: 0.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .vm-attest code {
-  background: #111;
+  background: rgba(212,175,55,0.05);
   border: 1px solid var(--vm-attest-line);
-  border-radius: 4px;
+  border-radius: var(--vm-radius);
   padding: 1px 4px;
 }
 
@@ -412,5 +606,356 @@ a:hover {
 
   .vm-attest .v {
     max-width: 62%;
+  }
+}
+
+/* ================================
+   Console polish — hardened static surfaces
+   ================================ */
+
+.route-architecture .card,
+.route-pricing .card,
+.route-proof-pack-intake .card,
+.route-support-ticket .card {
+  box-shadow: inset 0 1px 0 rgba(212,175,55,0.04);
+}
+
+.route-architecture .row,
+.route-pricing .row,
+.route-proof-pack-intake .row,
+.route-support-ticket .row {
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.route-architecture .k,
+.route-pricing .k,
+.route-proof-pack-intake .k,
+.route-support-ticket .k {
+  flex: 0 0 36%;
+  max-width: 36%;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.route-architecture .v,
+.route-pricing .v,
+.route-proof-pack-intake .v,
+.route-support-ticket .v {
+  max-width: 64%;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  text-align: right;
+}
+
+/* ================================
+   v1 PAGE SECTIONS — SCC density
+   ================================ */
+
+.page {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 18px 18px 40px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* --- Hero --- */
+
+.hero {
+  padding: 14px 0 10px;
+}
+
+.hero h1 {
+  font-size: 22px;
+  font-family: var(--vm-serif);
+  line-height: 1.15;
+  letter-spacing: 0.04em;
+  margin: 0 0 8px;
+  color: var(--gold);
+  text-shadow: 0 0 30px var(--gold-glow);
+}
+
+.subhead {
+  font-size: 11px;
+  line-height: 1.5;
+  opacity: 0.5;
+  max-width: 64ch;
+  margin: 0 0 12px;
+  letter-spacing: 0.04em;
+}
+
+.cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* --- Buttons — SCC gold accents --- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  border-radius: var(--vm-radius);
+  border: 1px solid var(--vm-line);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-decoration: none;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--vm-ink);
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  border-color: var(--gold-dim);
+  background: rgba(212,175,55,0.05);
+  color: var(--gold);
+  text-decoration: none;
+}
+
+.btn.primary {
+  background: rgba(212,175,55,0.08);
+  border-color: var(--gold-dim);
+  color: var(--gold);
+}
+
+.btn.primary:hover {
+  background: rgba(212,175,55,0.14);
+  border-color: var(--border-active);
+}
+
+/* --- Grids --- */
+
+.grid-3,
+.grid-2 {
+  display: grid;
+  gap: 1px;
+  margin: 14px 0;
+  background: var(--vm-line);
+}
+
+.grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+/* --- Cards (base + page-scoped) --- */
+
+.card {
+  padding: 14px;
+  border-radius: var(--vm-radius);
+  border: 1px solid var(--vm-attest-line);
+  background: var(--vm-attest-panel);
+  position: relative;
+  transition: all 0.4s ease;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+.card h2 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-family: var(--vm-serif);
+  letter-spacing: 0.04em;
+  color: var(--gold);
+}
+
+.card p,
+.card li {
+  font-size: 11px;
+  line-height: 1.5;
+  opacity: 0.6;
+}
+
+section.card {
+  margin-top: 10px;
+}
+
+.page .card p {
+  margin: 0;
+}
+
+.page .card ul {
+  margin: 6px 0 0;
+  padding-left: 16px;
+  line-height: 1.5;
+  font-size: 11px;
+}
+
+.page .card .btn {
+  margin-top: 10px;
+}
+
+/* --- Proof-strip chips --- */
+
+.proof-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0 8px;
+}
+
+.chip {
+  display: inline-flex;
+  padding: 4px 8px;
+  border-radius: var(--vm-radius);
+  border: 1px solid var(--vm-line);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+/* --- Steps --- */
+
+.steps {
+  margin: 14px 0;
+}
+
+.steps h2 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-family: var(--vm-serif);
+  letter-spacing: 0.04em;
+}
+
+.steps ol {
+  margin: 0;
+  padding-left: 16px;
+  line-height: 1.5;
+  font-size: 11px;
+}
+
+.steps li {
+  margin: 6px 0;
+}
+
+/* --- FAQ --- */
+
+.faq {
+  margin-top: 14px;
+}
+
+.faq h2 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-family: var(--vm-serif);
+  letter-spacing: 0.04em;
+}
+
+.faq details {
+  border: 1px solid var(--vm-line);
+  border-radius: var(--vm-radius);
+  background: var(--vm-surface);
+  padding: 10px 12px;
+  margin: 8px 0;
+  transition: border-color 0.3s ease;
+}
+
+.faq details[open] {
+  border-color: var(--gold-dim);
+}
+
+.faq summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 11px;
+  opacity: 0.7;
+  letter-spacing: 0.04em;
+}
+
+.faq details p {
+  margin: 6px 0 0;
+  opacity: 0.5;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* --- Misc --- */
+
+.vm-fail-note {
+  margin-top: 12px;
+  opacity: 0.5;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+
+.mono, code, pre, .code, .hash, .pill {
+  font-family: var(--vm-mono);
+  letter-spacing: 0;
+}
+
+.code, .hash, .pill {
+  background: rgba(212,175,55,0.05);
+  border: 1px solid var(--vm-line);
+  border-radius: var(--vm-radius);
+  padding: 2px 8px;
+}
+
+.muted { color: var(--vm-muted); }
+
+/* ================================
+   ANIMATIONS — SCC
+   ================================ */
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 0; }
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* ================================
+   RESPONSIVE
+   ================================ */
+
+@media (max-width: 860px) {
+  .grid-3 { grid-template-columns: 1fr; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 18px; }
+}
+
+@media (max-width: 900px) {
+  .route-architecture .k,
+  .route-pricing .k,
+  .route-proof-pack-intake .k,
+  .route-support-ticket .k {
+    flex: 0 0 42%;
+    max-width: 42%;
+  }
+
+  .route-architecture .v,
+  .route-pricing .v,
+  .route-proof-pack-intake .v,
+  .route-support-ticket .v {
+    max-width: 58%;
   }
 }

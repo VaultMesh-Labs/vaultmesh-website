@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # UI_SKIN_GUARD_v0
-# Enforce one canonical visual contract (bone-v05):
+# Enforce one canonical visual contract (scc-v1):
 # - public/shared/ui.css is the only token source
 # - every shipped HTML imports /shared/ui.css?v=bone-v05
 # - no inline style blocks or style attributes in HTML
@@ -14,7 +14,7 @@ cd "${ROOT_DIR}"
 MODE="repo"
 TARGET_DIR="public"
 SKIN_FILE="public/shared/ui.css"
-VERSION_LOCK="${UI_SKIN_VERSION_LOCK:-bone-v05}"
+VERSION_LOCK="${UI_SKIN_VERSION_LOCK:-scc-v1}"
 
 RC_USAGE=2
 RC_MISSING=11

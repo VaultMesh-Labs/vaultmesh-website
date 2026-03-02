@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Open Support Ticket | VaultMesh</title>
+  <meta name="description" content="Open a VaultMesh support ticket with a human-first intake form." />
+  <link rel="stylesheet" href="/shared/ui.css?v=scc-v1" />
+</head>
+<body class="vm-attest route-support-open" data-kind="support-open">
+  <!-- {{NAV}} -->
+  <main class="page">
+    <section class="hero">
+      <h1>Open support ticket</h1>
+      <p class="subhead">
+        Use this form for operational issues, verification blockers, and support requests.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Ticket intake</h2>
+      <form method="post" action="/support/ticket" enctype="application/x-www-form-urlencoded">
+        <input type="hidden" name="form_id" value="support_ticket_v1" />
+        <input type="hidden" name="route" value="/support/open/" />
+        <div class="row"><div class="k">name</div><div class="v"><input type="text" name="name" required /></div></div>
+        <div class="row"><div class="k">email</div><div class="v"><input type="email" name="email" required /></div></div>
+        <div class="row"><div class="k">company</div><div class="v"><input type="text" name="company" /></div></div>
+        <div class="row"><div class="k">severity</div><div class="v"><select name="severity"><option value="P0">P0</option><option value="P1">P1</option><option value="P2" selected>P2</option><option value="P3">P3</option></select></div></div>
+        <div class="row"><div class="k">subject</div><div class="v"><input type="text" name="subject" required /></div></div>
+        <div class="row"><div class="k">message</div><div class="v"><textarea name="message" rows="6" required></textarea></div></div>
+        <div class="row"><div class="k">submit</div><div class="v"><button type="submit" class="btn primary">Create Ticket</button></div></div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Need contract-level details?</h2>
+      <p>See the support contract surface: <a href="/support/ticket/">support ticket contract</a></p>
+    </section>
+  </main>
+  <!-- {{FOOTER}} -->
+</body>
+</html>

@@ -3,90 +3,137 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Proof Pack Intake | VaultMesh</title>
+  <title>Proof Pack Intake — VaultMesh</title>
   <meta name="description" content="Proof Pack intake requirements, scope, timeline, and submission endpoint." />
-  <link rel="stylesheet" href="/shared/ui.css?v=bone-v05" />
+  <link rel="stylesheet" href="/shared/ui.css?v=scc-v1" />
 </head>
-<body class="vm-attest route-proof-pack-intake">
+<body class="vm-attest route-proof-pack-intake" data-kind="proof-pack-intake">
   <!-- {{NAV}} -->
-  <div class="wrap">
-    <h1>VaultMesh - Proof Pack Intake</h1>
-    <div class="sub">Fixed scope intake contract for one boundary and one claim set. This is a static GET surface.</div>
+  <main class="page">
+    <section class="hero">
+      <h1>Proof Pack Intake</h1>
+      <p class="subhead">
+        Fixed-scope evidence bundle you can verify offline. Choose tier, define scope, submit.
+      </p>
+    </section>
 
-    <div class="card span12">
-      <div class="label">Status Bar</div>
-      <div class="row"><div class="k">surface</div><div class="v"><span class="badge PRESENT">PRESENT</span> STATIC_HTML</div></div>
-      <div class="row"><div class="k">mode</div><div class="v"><span class="badge PRESENT">PRESENT</span> NO_JS / NO_FETCH</div></div>
-      <div class="row"><div class="k">verify</div><div class="v"><span class="badge PRESENT">PRESENT</span> OFFLINE_COMPATIBLE</div></div>
-      <div class="row"><div class="k">route</div><div class="v"><code>/proof-pack/intake/</code></div></div>
-      <div class="row"><div class="k">post_handler</div><div class="v"><code>/proof-pack/intake</code> (separate)</div></div>
-    </div>
+    <section class="card">
+      <h2>What You Get</h2>
+      <ul>
+        <li><strong>Deliverable</strong> — deterministic evidence bundle + verifier walkthrough</li>
+        <li><strong>Delivery</strong> — 7–10 business days from scope lock</li>
+        <li><strong>Scope</strong> — one boundary, one claim set per engagement</li>
+        <li><strong>Verification</strong> — offline-verifiable; no trust dependency on us</li>
+      </ul>
+    </section>
 
-    <div class="card span12">
-      <div class="label">Bundle</div>
-      <div class="row"><div class="k">offer</div><div class="v"><span class="badge PRESENT">PRESENT</span> fixed-scope sprint</div></div>
-      <div class="row"><div class="k">output</div><div class="v"><span class="badge PRESENT">PRESENT</span> verifier-ready bundle</div></div>
-      <div class="row"><div class="k">endpoint split</div><div class="v"><span class="badge PRESENT">PRESENT</span> static GET + POST handler</div></div>
-    </div>
+    <form method="post" action="/proof-pack/lead" enctype="application/x-www-form-urlencoded">
+      <input type="hidden" name="form_id" value="proof_pack_lead_v1" />
+      <input type="hidden" name="route" value="/proof-pack/intake/" />
 
-    <div class="grid">
-      <div class="card span6">
-        <div class="label">What We Need</div>
-        <div class="row"><div class="k">boundary</div><div class="v">service, environment, owner</div></div>
-        <div class="row"><div class="k">claim set</div><div class="v">primary claim(s) to prove</div></div>
-        <div class="row"><div class="k">constraints</div><div class="v">controls and operating limits</div></div>
-        <div class="row"><div class="k">audience</div><div class="v">audit, customer, regulator</div></div>
-      </div>
+      <section class="card">
+        <h2>Choose Tier</h2>
 
-      <div class="card span6">
-        <div class="label">What You Get</div>
-        <div class="row"><div class="k">scope lock</div><div class="v">single boundary + claim set</div></div>
-        <div class="row"><div class="k">bundle</div><div class="v">deterministic evidence archive</div></div>
-        <div class="row"><div class="k">walkthrough</div><div class="v">signature + digest verification</div></div>
-        <div class="row"><div class="k">handoff</div><div class="v">audit/dispute ready notes</div></div>
-      </div>
+        <div class="grid-2 tier-compare">
+          <div class="card tier-option">
+            <h3>Snapshot</h3>
+            <ul>
+              <li><strong>Price</strong> — $4,500</li>
+              <li><strong>Timeline</strong> — 7–10 business days</li>
+              <li><strong>Scope</strong> — one boundary, one claim set</li>
+            </ul>
+          </div>
+          <div class="card tier-option">
+            <h3>Sprint</h3>
+            <ul>
+              <li><strong>Price</strong> — $7,500</li>
+              <li><strong>Timeline</strong> — deeper scope + verification</li>
+              <li><strong>Scope</strong> — extended boundary + claim set</li>
+            </ul>
+          </div>
+        </div>
 
-      <div class="card span4">
-        <div class="label">Scope Guardrails</div>
-        <div class="row"><div class="k">boundaries</div><div class="v">1</div></div>
-        <div class="row"><div class="k">claim sets</div><div class="v">1</div></div>
-        <div class="row"><div class="k">silent changes</div><div class="v"><span class="badge INVALID">INVALID</span></div></div>
-      </div>
+        <div>
+          <label for="pp-tier">Tier</label>
+          <select id="pp-tier" name="tier" required>
+            <option value="" selected disabled>Select tier…</option>
+            <option value="snapshot_4500">Snapshot ($4,500)</option>
+            <option value="sprint_7500">Sprint ($7,500)</option>
+          </select>
+          <p class="vm-fail-note">Snapshot = fixed-scope pilot. Sprint = deeper scope.</p>
+        </div>
+      </section>
 
-      <div class="card span4">
-        <div class="label">Timeline</div>
-        <div class="row"><div class="k">intake accepted</div><div class="v">scope lock</div></div>
-        <div class="row"><div class="k">delivery window</div><div class="v">7-10 business days</div></div>
-        <div class="row"><div class="k">closeout</div><div class="v">verifier walkthrough</div></div>
-      </div>
+      <section class="card">
+        <h2>About You</h2>
 
-      <div class="card span4">
-        <div class="label">Submission Routes</div>
-        <!-- Canonical POST endpoints: /proof-pack/lead /proof-pack/intake /proof-pack/payment -->
-        <div class="row"><div class="k">Lead endpoint</div><div class="v"><code>/proof-pack/lead</code></div></div>
-        <div class="row"><div class="k">GET docs</div><div class="v"><a href="/proof-pack/intake/">/proof-pack/intake/</a></div></div>
-        <div class="row"><div class="k">POST endpoint</div><div class="v"><code>/proof-pack/intake</code></div></div>
-        <div class="row"><div class="k">support fallback</div><div class="v"><a href="/support/ticket/">/support/ticket/</a></div></div>
-      </div>
+        <div>
+          <label for="pp-name">Name</label>
+          <input id="pp-name" type="text" name="name" required />
+        </div>
 
-      <div class="card span12">
-        <div class="label">Action Row</div>
-        <div class="row"><div class="k">action</div><div class="v">REQUEST_INTAKE</div></div>
-        <div class="row"><div class="k">path</div><div class="v"><code>/proof-pack/intake/</code></div></div>
-        <div class="row"><div class="k">expect</div><div class="v">BOUNDARY + CLAIMS_LOCK</div></div>
-      </div>
+        <div>
+          <label for="pp-email">Email</label>
+          <input id="pp-email" type="email" name="email" required />
+        </div>
 
-      <div class="card span12">
-        <div class="label">Legend</div>
-        <div class="row"><div class="k">what this is</div><div class="v">static intake contract</div></div>
-        <div class="row"><div class="k">what this is not</div><div class="v">live submission API surface</div></div>
-        <div class="row"><div class="k">next action</div><div class="v">submit boundary and claim set</div></div>
-        <div class="row"><div class="k">evidence links</div><div class="v"><a href="/attest/">/attest/</a> | <a href="/verify/">/verify/</a></div></div>
-      </div>
-    </div>
+        <div>
+          <label for="pp-company">Company</label>
+          <input id="pp-company" type="text" name="company" required />
+        </div>
+      </section>
 
-    <div class="footer">Static statement: this page documents the intake contract. Official submission occurs on <code>POST /proof-pack/intake</code>.</div>
-  </div>
+      <section class="card">
+        <h2>Define Scope</h2>
+
+        <div>
+          <label for="pp-boundary">Boundary</label>
+          <input id="pp-boundary" type="text" name="boundary" required placeholder="e.g. production Kubernetes cluster" />
+        </div>
+
+        <div>
+          <label for="pp-claims">Claim set</label>
+          <textarea id="pp-claims" name="claim_set" rows="4" required placeholder="e.g. all containers run as non-root; secrets encrypted at rest"></textarea>
+        </div>
+
+        <div>
+          <label for="pp-audience">Audience</label>
+          <select id="pp-audience" name="audience">
+            <option value="audit">Audit</option>
+            <option value="customer">Customer</option>
+            <option value="regulator">Regulator</option>
+            <option value="internal">Internal</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Submit</h2>
+        <button type="submit" class="btn primary">Request Intake</button>
+        <p class="vm-fail-note">You'll receive lead_id + token_sha (receipted). Keep it.</p>
+      </section>
+    </form>
+
+    <details class="card">
+      <summary><h2>Contract Rails</h2></summary>
+      <ul>
+        <li><strong>Surface</strong> — static HTML</li>
+        <li><strong>Mode</strong> — no JavaScript, no fetch</li>
+        <li><strong>Verify</strong> — offline compatible</li>
+        <li><strong>POST handler</strong> — <code>/proof-pack/lead</code></li>
+      </ul>
+    </details>
+
+    <details class="card">
+      <summary><h2>Evidence Links</h2></summary>
+      <ul>
+        <li><a href="/proof-pack/intake/">GET docs</a> — this page</li>
+        <li><strong>POST endpoint</strong> — <code>/proof-pack/lead</code></li>
+        <li><a href="/support/ticket/">Support fallback</a></li>
+        <li><a href="/attest/">Attestation</a> · <a href="/verify/">Verification</a></li>
+      </ul>
+    </details>
+  </main>
   <!-- {{FOOTER}} -->
 </body>
 </html>

@@ -3,78 +3,102 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>VaultMesh</title>
-  <link rel="stylesheet" href="/shared/ui.css?v=bone-v04" />
+  <title>VaultMesh — Proof > Power</title>
+  <meta name="description" content="VaultMesh delivers continuous, cryptographically verifiable integrity for sovereign systems: state continuity, signed artifacts, and adversarial validation." />
+  <link rel="stylesheet" href="/shared/ui.css?v=scc-v1" />
 </head>
-<body class="vm-attest">
-<!-- NAV_v0 -->
-<nav class="vm-nav">
-  <div class="vm-nav-inner">
-    <div class="vm-brand">
-      <a href="/">VaultMesh</a>
-    </div>
-
-    <div class="vm-links">
-      <a href="/attest/">Attest</a>
-      <a href="/proof-pack/">Proof Pack</a>
-      <a href="/trust/">Trust</a>
-      <a href="/verify/">Verify</a>
-      <a href="/support/">Support</a>
-    </div>
-
-    <div class="vm-external">
-      <a href="https://cc.vaultmesh.org/" target="_blank" rel="noopener">
-        cc ↗
-      </a>
-    </div>
-  </div>
+<body class="vm-attest route-home" data-kind="home" data-route="/">
+<nav class="vm-nav" aria-label="Primary">
+  <a class="vm-brand" href="/" aria-label="VaultMesh">VaultMesh</a>
+  <a class="vm-nav-cta" href="/contact/?intent=book_call" aria-label="Book a call">Book Call</a>
 </nav>
-  <div class="wrap">
-    <h1>VaultMesh Public Surface</h1>
-    <div class="sub">Deterministic static artifact for verification, support, and attestation continuity.</div>
+  <main class="page">
+    <section class="hero">
+      <h1>Proof > Power.</h1>
+      <p class="subhead">
+        Continuous, offline-verifiable integrity for systems that can't afford trust.
+      </p>
+            <div class="cta-row home-cta">
+        <a class="btn primary" href="/offer/">See the Offer</a>
+        <div class="home-cta-secondary">
+          <a class="btn secondary" href="/verify/">Verify</a>
+          <a class="btn secondary" href="/support/">Support</a>
+        </div>
+      </div>
+    </section>
 
-    <div class="grid">
-      <div class="card span12">
-        <div class="label">Public Routes</div>
-        <div class="row"><div class="k">proof_pack</div><div class="v"><a href="/proof-pack/">/proof-pack/</a></div></div>
-        <div class="row"><div class="k">support</div><div class="v"><a href="/support/">/support/</a></div></div>
-        <div class="row"><div class="k">trust</div><div class="v"><a href="/trust/">/trust/</a></div></div>
-        <div class="row"><div class="k">verify</div><div class="v"><a href="/verify/">/verify/</a></div></div>
-        <div class="row"><div class="k">attest</div><div class="v"><a href="/attest/">/attest/</a></div></div>
+    <div class="grid-2">
+      <div class="card">
+        <h2>What VaultMesh is</h2>
+        <p>
+          A system for <strong>continuous integrity</strong>: state continuity, signed artifacts, and
+          adversarial checks that make claims machine-verifiable.
+        </p>
+        <ul>
+          <li>Hash-chained ledgers (append-only receipts)</li>
+          <li>Ed25519 signatures (detached, offline verifiable)</li>
+          <li>Equivocation detection (fork / replay awareness)</li>
+          <li>Portable evidence bundles (export / ingest / dispute packs)</li>
+        </ul>
       </div>
 
-      <div class="card span6">
-        <div class="label">Proof</div>
-        <div class="muted">Public proof-pack surface and operational intake boundary.</div>
-      </div>
-      <div class="card span6">
-        <div class="label">Continuity</div>
-        <div class="muted">Attestation records and signature continuity published statically.</div>
+      <div class="card">
+        <h2>What VaultMesh is not</h2>
+        <p>
+          Not a marketing dashboard. Not "trust me." Not a single point of failure.
+          This surface is intentionally minimal so verification stays simple.
+        </p>
+        <pre class="code">invariants:
+  - offline verification works
+  - state continuity is monotonic
+  - receipts are append-only
+  - distrust is expected</pre>
       </div>
     </div>
 
-    <div class="footer">Build: e0691ca</div>
-  </div>
-<!-- FOOTER_v0 -->
+    <div class="grid-3">
+      <div class="card">
+        <h2>Support</h2>
+        <p>Structured intake and per-ticket status tracking for active engagements.</p>
+        <div class="cta-row"><a class="btn" href="/support/">Open Support</a></div>
+      </div>
+
+      <div class="card">
+        <h2>Status</h2>
+        <p>Signed health digest and published artifacts for external verification.</p>
+        <div class="cta-row"><a class="btn" href="/status/">Status</a></div>
+      </div>
+
+      <div class="card">
+        <h2>Security</h2>
+        <p>Disclosure path for vulnerabilities. Evidence first. Impact scoped.</p>
+        <div class="cta-row"><a class="btn" href="/security/">Disclosure</a></div>
+      </div>
+    </div>
+  </main>
+<!-- FOOTER_v2 -->
 <footer class="vm-footer">
   <div class="vm-footer-inner">
 
     <div class="vm-footer-left">
       <div>VaultMesh — Public Surface</div>
       <div class="vm-footer-muted">
-        No origin API calls. Static edge artifact.
+        Static edge artifact.
       </div>
     </div>
 
     <div class="vm-footer-right">
-      <div id="vm-build-id">Build: e0691ca</div>
-      <div id="vm-manifest-sha">Manifest: sha256:c0cf805e4a82d135eb90871ce7bf8c4df776c45bf1bd9c4a407369ee886014b8</div>
+      <div id="vm-build-id">Build: e9b450b</div>
+      <div><a href="/attest/" class="vm-footer-link">Verify →</a></div>
     </div>
 
   </div>
 
   <div class="vm-footer-bottom">
-    © VaultMesh Foundation — Proof > Power
+    © VaultMesh Foundation
+    · <a href="/legal/privacy/" class="vm-footer-link">Privacy</a>
+    · <a href="/legal/terms/" class="vm-footer-link">Terms</a>
+    · <a href="/security/" class="vm-footer-link">Security</a>
   </div>
 </footer>
 </body>

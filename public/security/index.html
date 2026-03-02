@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Security — VaultMesh</title>
+  <meta name="description" content="VaultMesh security disclosure policy. Evidence first, impact scoped, responsible process." />
+  <link rel="stylesheet" href="/shared/ui.css?v=scc-v1" />
+</head>
+<body class="vm-attest route-security" data-kind="security">
+  <!-- {{NAV}} -->
+  <main class="page">
+    <section class="hero">
+      <h1>Security Disclosure</h1>
+      <p class="subhead">
+        Evidence first. Impact scoped. Responsible process.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Reporting a vulnerability</h2>
+      <p>
+        If you believe you have found a security vulnerability in VaultMesh
+        infrastructure, please report it through the structured disclosure process below.
+      </p>
+      <ul>
+        <li><strong>Email:</strong> security@vaultmesh.org</li>
+        <li><strong>Encryption:</strong> Ed25519 verifying key at <a href="/security/verify.pub"><code>/security/verify.pub</code></a> (raw 32 bytes)</li>
+        <li><strong>Response target:</strong> acknowledgment within 48 hours</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>What to include</h2>
+      <ul>
+        <li>Reproducible steps (commands, URLs, inputs)</li>
+        <li>Impact scope (what is affected, severity estimate)</li>
+        <li>Evidence artifacts (logs, screenshots, proof of concept)</li>
+        <li>Your contact information for follow-up</li>
+      </ul>
+      <p>
+        Reports without reproducible evidence will be acknowledged but may not
+        be actionable. The more specific the report, the faster the response.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Disclosure process</h2>
+      <pre class="code">1. Report received → acknowledgment (48h target)
+2. Triage → severity classification + evidence review
+3. Fix development → patch prepared, regression tested
+4. Coordinated disclosure → reporter notified before public
+5. Public advisory → receipted, signed, append-only record</pre>
+    </section>
+
+    <section class="card">
+      <h2>Scope</h2>
+      <p>In scope:</p>
+      <ul>
+        <li>VaultMesh proof chain integrity (hash chains, signatures, anchors)</li>
+        <li>State continuity violations (equivocation, replay, tampering)</li>
+        <li>Infrastructure vulnerabilities (edge, origin, bastion hosts)</li>
+        <li>Build pipeline compromise (deterministic build bypass)</li>
+      </ul>
+      <p style="margin-top:1rem">Out of scope:</p>
+      <ul>
+        <li>Social engineering against personnel</li>
+        <li>Denial of service (volumetric)</li>
+        <li>Issues in third-party dependencies (report upstream)</li>
+      </ul>
+    </section>
+  </main>
+  <!-- {{FOOTER}} -->
+</body>
+</html>

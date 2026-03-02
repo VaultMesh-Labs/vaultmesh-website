@@ -4,35 +4,48 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Support — VaultMesh</title>
-  <meta name="description" content="Operational support surface for VaultMesh intake, status, and security disclosure." />
-  <meta name="robots" content="noindex,nofollow" />
-  <link rel="stylesheet" href="/shared/ui.css?v=bone-v05" />
+  <meta name="description" content="VaultMesh operational support. Structured intake, per-ticket status tracking, and evidence-linked triage." />
+  <link rel="stylesheet" href="/shared/ui.css?v=scc-v1" />
 </head>
-<body class="vm-attest route-support">
+<body class="vm-attest route-support" data-kind="support">
   <!-- {{NAV}} -->
   <main class="page">
     <section class="hero">
       <h1>Support</h1>
-      <p class="subhead">Operational support surface. Structured intake and status for active engagements.</p>
+      <p class="subhead">
+        Structured intake and per-ticket status tracking for active engagements.
+        Every event is receipted.
+      </p>
     </section>
 
-    <section class="grid-2">
+    <div class="grid-2">
       <div class="card">
         <h2>Open a ticket</h2>
-        <p>Use deterministic intake for support events and evidence-linked triage.</p>
-        <div class="cta-row"><a class="btn primary" href="/support/ticket/">Open support ticket</a></div>
+        <p>
+          Deterministic intake for support events. Evidence-linked triage
+          with receipted state transitions.
+        </p>
+        <div class="cta-row"><a class="btn primary" href="/support/open/">Open support ticket</a></div>
       </div>
+
       <div class="card">
         <h2>Check status</h2>
-        <p>Status is served from the isolated support host.</p>
+        <p>
+          Per-ticket status is served from the isolated support host.
+          No shared state with the public surface.
+        </p>
         <div class="cta-row"><a class="btn" href="https://support.vaultmesh.org/support/status">Go to status</a></div>
       </div>
-    </section>
+    </div>
 
     <section class="card">
-      <h2>Security disclosure</h2>
-      <p>If you believe you found a security issue, include reproducible evidence and impact scope in the first report.</p>
-      <div class="cta-row"><a class="btn" href="/trust/">Trust model</a></div>
+      <h2>What to expect</h2>
+      <ul>
+        <li><strong>Acknowledgment</strong> — within 24 hours, receipted</li>
+        <li><strong>Triage</strong> — severity classification with evidence requirements</li>
+        <li><strong>Resolution</strong> — tracked through append-only ticket ledger</li>
+        <li><strong>Escalation</strong> — security issues route to <a href="/security/">disclosure path</a></li>
+      </ul>
     </section>
   </main>
   <!-- {{FOOTER}} -->

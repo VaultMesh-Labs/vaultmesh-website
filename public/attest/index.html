@@ -4,82 +4,103 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Attest — VaultMesh Live Verification Surface</title>
-  <link rel="stylesheet" href="/shared/ui.css?v=bone-v05" />
+  <link rel="stylesheet" href="/shared/ui.css?v=scc-v1" />
 </head>
-<body class="vm-attest route-attest">
+<body class="vm-attest route-attest" data-kind="attest">
   <!-- {{NAV}} -->
   <div class="wrap">
-    <h1>Live Verification Surface</h1>
-    <div class="sub">This page exposes integrity roots and release parity. Static bundle: <span class="badge MISSING">MISSING</span> is allowed; <span class="badge INVALID">INVALID</span> fails build gate.</div>
+    <h1>Site Build Verification</h1>
+    <div class="sub">This page is the proof portal for vaultmesh.org itself. Every deploy produces a manifest hash, a build ID, and signed artifacts you can verify offline.</div>
 
-    <div class="card span12">
-      <div class="label">Bundle</div>
+    <div class="card span12 attest-entry-card">
+      <div class="label">Next action</div>
+
+      <div class="cta-row attest-cta">
+        <a class="btn primary" href="/attest/attest.json">Download attest.json</a>
+        <div class="attest-cta-secondary">
+          <a class="btn secondary" href="/verify/">Verify</a>
+          <a class="btn secondary" href="/status/">Status</a>
+        </div>
+      </div>
+
+      <div class="muted" style="margin-top:10px">
+        attest.json is the canonical proof object (continuity, health, anchors, drift, authority, release).
+      </div>
+    </div>
+
+    <details class="card span12 attest-rails-card">
+      <summary class="label">This build</summary>
+      <div class="row"><div class="k">build_id</div><div class="v"><code id="vm-attest-build">{{BUILD_ID}}</code></div></div>
+      <div class="row"><div class="k">manifest</div><div class="v"><code id="vm-attest-manifest">Manifest: sha256:UNSET</code></div></div>
+      <div class="row"><div class="k">artifacts</div><div class="v">
+        <a href="/attest/LATEST.txt">LATEST.txt</a> ·
+        <a href="/attest/attest.json">attest.json</a> ·
+        <a href="/attest/ROOT_HISTORY.txt">ROOT_HISTORY.txt</a> ·
+        <a href="/attest/ROOT_HISTORY.sig">ROOT_HISTORY.sig</a>
+      </div></div>
+      <div class="row"><div class="k">verify</div><div class="v" style="opacity:0.7"><code>shasum -a 256 MANIFEST.sha256</code> — compare with footer hash</div></div>
+    </details>
+
+    <details class="card span12 attest-rails-card">
+      <summary class="label">Bundle</summary>
       <div class="row"><div class="k">schema_id</div><div class="v" id="schema_id">...</div></div>
       <div class="row"><div class="k">ts</div><div class="v" id="ts">...</div></div>
       <div class="row"><div class="k">subject</div><div class="v" id="subject">...</div></div>
       <div class="row"><div class="k">latest</div><div class="v" id="latest">...</div></div>
-    </div>
+    </details>
 
-    <div class="grid">
-      <div class="card span6">
-        <div class="label">Continuity</div>
-        <div id="continuity"></div>
+    <details class="card span12 attest-rails-card">
+      <summary class="label">Continuity + health</summary>
+      <div id="continuity"></div>
+      <div id="health"></div>
+    </details>
+
+    <details class="card span12 attest-rails-card">
+      <summary class="label">Anchors + drift</summary>
+      <div id="anchors"></div>
+      <div id="drift"></div>
+    </details>
+
+    <details class="card span12 attest-rails-card">
+      <summary class="label">Authority + release</summary>
+      <div id="authority"></div>
+      <div class="row">
+        <div class="k">status</div>
+        <div class="v" id="release_status">MISSING</div>
       </div>
-      <div class="card span6">
-        <div class="label">Verification / Health</div>
-        <div id="health"></div>
+      <div class="row">
+        <div class="k">build_run_id</div>
+        <div class="v mono" id="release_build_run_id">—</div>
       </div>
-      <div class="card span4">
-        <div class="label">Anchors</div>
-        <div id="anchors"></div>
+      <div class="row">
+        <div class="k">deploy_target_id</div>
+        <div class="v mono" id="release_target_id">—</div>
       </div>
-      <div class="card span4">
-        <div class="label">Drift</div>
-        <div id="drift"></div>
+      <div class="row">
+        <div class="k">root_tree_sha256</div>
+        <div class="v mono" id="release_root_sha">—</div>
       </div>
-      <div class="card span4">
-        <div class="label">Authority</div>
-        <div id="authority"></div>
+      <div class="row">
+        <div class="k">caddyfile_sha256</div>
+        <div class="v mono" id="release_caddy_sha">—</div>
       </div>
-      <div class="card span4">
-        <div class="label">Release</div>
-        <div class="row">
-          <div class="k">status</div>
-          <div class="v" id="release_status">MISSING</div>
-        </div>
-        <div class="row">
-          <div class="k">build_run_id</div>
-          <div class="v mono" id="release_build_run_id">—</div>
-        </div>
-        <div class="row">
-          <div class="k">deploy_target_id</div>
-          <div class="v mono" id="release_target_id">—</div>
-        </div>
-        <div class="row">
-          <div class="k">root_tree_sha256</div>
-          <div class="v mono" id="release_root_sha">—</div>
-        </div>
-        <div class="row">
-          <div class="k">caddyfile_sha256</div>
-          <div class="v mono" id="release_caddy_sha">—</div>
-        </div>
-        <div class="row">
-          <div class="k">artifact</div>
-          <div class="v">
-            <a href="/attest/RELEASE_ATTEST.json" target="_blank">/attest/RELEASE_ATTEST.json</a>
-          </div>
+      <div class="row">
+        <div class="k">artifact</div>
+        <div class="v">
+          <a href="/attest/RELEASE_ATTEST.json" target="_blank">/attest/RELEASE_ATTEST.json</a>
         </div>
       </div>
-      <div class="card span12">
-        <div class="label">Legend</div>
-        <div class="muted">
-          <span class="badge PRESENT">PRESENT</span>
-          <span class="badge MISSING">MISSING</span>
-          <span class="badge UNKNOWN">UNKNOWN</span>
-          <span class="badge INVALID">INVALID</span>
-        </div>
+    </details>
+
+    <details class="card span12 attest-rails-card">
+      <summary class="label">Legend</summary>
+      <div class="muted">
+        <span class="badge PRESENT">PRESENT</span>
+        <span class="badge MISSING">MISSING</span>
+        <span class="badge UNKNOWN">UNKNOWN</span>
+        <span class="badge INVALID">INVALID</span>
       </div>
-    </div>
+    </details>
 
     <div class="footer">
       Data source: <code>/attest/attest.json</code> and <code>/attest/LATEST.txt</code> (static). No origin API calls.

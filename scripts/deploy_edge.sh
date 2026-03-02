@@ -1,10 +1,57 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+################################################################################
+# DEPLOY CONTRACT v1 — Static Site Sync Invariants
+#
+# This file codifies the deployment invariants for the VaultMesh public surface
+# (static HTML/CSS, no JS, edge-1 artifact layer). Any future edits to this
+# script must preserve these invariants.
+#
+# 1) CHECKSUM-BASED SYNC
+#    All static artifacts under dist/ must be synced using checksum compare.
+#    Because build.sh normalizes mtimes to 2020-01-01, relying on mtime+size
+#    will silently skip updated content whose byte-length did not change.
+#    Therefore every rsync that copies built output MUST include -c.
+#
+#    Pattern:  rsync -ac --delete "${DEPLOY_RSYNC_EXCLUDES[@]}" [src] [dst]
+#
+#    DO NOT remove the -c flag or replace it with size/mtime-only logic.
+#
+# 2) SINGLE EXCLUDE SET
+#    DEPLOY_RSYNC_EXCLUDES is the sole source of truth for paths excluded
+#    from both the canonical-snapshot sync AND the drift check.  Diverging
+#    exclude lists cause false-positive drift or missed drift detection.
+#
+#    The array must reflect:
+#      - OS noise (.DS_Store)
+#      - Mutable runtime paths from MANIFEST.json allowlist
+#      - Symlink targets managed outside the build
+#
+#    DO NOT add excludes inline at individual rsync call sites.
+#    Update the single array below, nowhere else.
+#
+################################################################################
+
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
 # shellcheck source=scripts/_lib/routes_required.sh
 source "${ROOT_DIR}/scripts/_lib/routes_required.sh"
+
+################################################################################
+# RSYNC EXCLUDE LIST — single source for deploy sync + drift checks.
+# Mutable runtime paths from MANIFEST.json allowlist plus OS noise.
+# Add new excludes ONLY HERE.
+################################################################################
+DEPLOY_RSYNC_EXCLUDES=(
+  --exclude '.DS_Store'
+  --exclude 'attest/attest.json'
+  --exclude 'attest/LATEST.txt'
+  --exclude 'shared/'
+)
+
+# Runtime guard — fails loud if this variable is unset or empty.
+: "${DEPLOY_RSYNC_EXCLUDES:?DEPLOY_RSYNC_EXCLUDES not defined — contract violated}"
 
 RC_PRECHECK=20
 RC_STAGING_UPLOAD=21
@@ -77,10 +124,44 @@ json_get_first_string_file() {
 }
 
 ./build.sh >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+bash scripts/contracts/ui_contract_check.sh >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+bash scripts/contracts/lane_width_lock.sh >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+bash scripts/contracts/color_lock_check.sh >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+bash scripts/contracts/footer_contract_check.sh >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+bash scripts/contracts/home_surface_check.sh "dist/index.html" >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+bash scripts/contracts/route_identity_check.sh >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+bash scripts/contracts/page_kind_check.sh dist scripts/contracts/kind_map.v1.tsv >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+bash scripts/contracts/attest_surface_check.sh dist >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+bash scripts/contracts/support_open_surface_check.sh dist >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+bash scripts/contracts/support_open_ui_scale_check.sh >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+bash scripts/contracts/proof_pack_intake_surface_check.sh dist >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+bash scripts/contracts/proof_pack_intake_ui_contract_check.sh dist >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+bash scripts/contracts/form_skin_contract_check.sh dist >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+bash scripts/contracts/proof_pack_surface_check.sh dist >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+bash scripts/contracts/pricing_ui_order_lock.sh dist/pricing/index.html >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+bash scripts/contracts/pricing_ui_contract_check.sh >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+bash scripts/contracts/offer_surface_check.sh dist/offer/index.html >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+bash scripts/contracts/verify_surface_check.sh dist/verify/index.html >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+bash scripts/contracts/status_surface_check.sh dist/status/index.html >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+bash scripts/contracts/attest_lane_check.sh dist/attest/index.html >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
 
 rm -rf dist/site
 mkdir -p dist/site
 rsync -a --delete --exclude '.DS_Store' --exclude 'site/' dist/ dist/site/ || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+
+# Verify all required routes exist in the build output.
+IFS=',' read -r -a GUARD_ROUTES <<< "${VM_ROUTES_REQUIRED_CSV}"
+for route in "${GUARD_ROUTES[@]}"; do
+  route="${route#"${route%%[![:space:]]*}"}"
+  route="${route%"${route##*[![:space:]]}"}"
+  [[ -n "${route}" ]] || continue
+  [[ -f "dist/site/${route}" ]] || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+done
+
+# Sync canonical snapshot from current build.
+# The deploy drift check (below) then validates this sync is clean.
+rsync -ac --delete "${DEPLOY_RSYNC_EXCLUDES[@]}" dist/site/ "${CANON_ROOT}/" || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
+
 bash scripts/deploy_parity_guard.sh || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
 
 [[ -f "${BUILD_INFO_FILE}" ]] || fail "GUARD_NOT_FOR_CURRENT_BUILD" "${RC_PRECHECK}"
@@ -132,9 +213,7 @@ bash scripts/sot_guard.sh --pre >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHEC
 VM_HOOKS_UPSTREAM=127.0.0.1:65535 bash scripts/caddy_guard.sh --repo-snapshot deploy/edge/etc/caddy/Caddyfile >/dev/null || fail "PRECHECK_FAIL" "${RC_PRECHECK}"
 
 DRIFT_CHECK="$(rsync -rcni --delete \
-  --exclude 'attest/attest.json' \
-  --exclude 'attest/LATEST.txt' \
-  --exclude 'shared/' \
+  "${DEPLOY_RSYNC_EXCLUDES[@]}" \
   dist/site/ "${CANON_ROOT}/" || true)"
 if [[ -n "${DRIFT_CHECK}" ]]; then
   fail "PRECHECK_FAIL" "${RC_PRECHECK}"

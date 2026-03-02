@@ -3,68 +3,98 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Verify | VaultMesh</title>
-  <link rel="stylesheet" href="/shared/ui.css?v=bone-v04" />
+  <title>Verify a Bundle | VaultMesh</title>
+  <meta name="description" content="Every VaultMesh bundle includes everything you need to verify it—offline, with standard tools." />
+  <link rel="stylesheet" href="/shared/ui.css?v=scc-v1" />
 </head>
-<body class="vm-attest">
-<!-- NAV_v0 -->
-<nav class="vm-nav">
-  <div class="vm-nav-inner">
-    <div class="vm-brand">
-      <a href="/">VaultMesh</a>
-    </div>
-
-    <div class="vm-links">
-      <a href="/attest/">Attest</a>
-      <a href="/proof-pack/">Proof Pack</a>
-      <a href="/trust/">Trust</a>
-      <a href="/verify/">Verify</a>
-      <a href="/support/">Support</a>
-    </div>
-
-    <div class="vm-external">
-      <a href="https://cc.vaultmesh.org/" target="_blank" rel="noopener">
-        cc ↗
-      </a>
-    </div>
-  </div>
+<body class="vm-attest route-verify" data-kind="verify" data-route="/verify/">
+<nav class="vm-nav" aria-label="Primary">
+  <a class="vm-brand" href="/" aria-label="VaultMesh">VaultMesh</a>
+  <a class="vm-nav-cta" href="/contact/?intent=book_call" aria-label="Book a call">Book Call</a>
 </nav>
-  <div class="wrap">
-    <h1>Verify</h1>
-    <div class="sub">Independent verification entrypoint for manifest and attestation artifacts.</div>
+  <main class="page">
+    <section class="hero">
+      <h1>Verify a bundle.</h1>
+      <p class="subhead">
+        Verification is designed to work offline. If you can unzip it, you can verify it.
+      </p>
+    </section>
 
-    <div class="grid">
-      <div class="card span12">
-        <div class="label">Verification Targets</div>
-        <div class="row"><div class="k">manifest</div><div class="v"><code>/MANIFEST.sha256</code></div></div>
-        <div class="row"><div class="k">build_proof</div><div class="v"><code>/BUILD_PROOF.txt</code></div></div>
-        <div class="row"><div class="k">attestation</div><div class="v"><code>/attest/attest.json</code></div></div>
-        <div class="row"><div class="k">latest_pointer</div><div class="v"><code>/attest/LATEST.txt</code></div></div>
+    <div class="card span12 verify-entry-card">
+      <div class="label">Next action</div>
+
+      <div class="cta-row verify-cta">
+        <a class="btn primary" href="/verify-console/">Verification Console</a>
+        <div class="verify-cta-secondary">
+          <a class="btn secondary" href="/proof-pack/">Get a Proof Pack</a>
+          <a class="btn secondary" href="/trust/">Trust Model</a>
+        </div>
+      </div>
+
+      <div class="muted" style="margin-top:10px">
+        Offline-first verification. If you can unzip, you can verify.
       </div>
     </div>
 
-    <div class="footer">Build: e0691ca</div>
-  </div>
-<!-- FOOTER_v0 -->
+    <details class="card span12 verify-rails-card">
+      <summary class="label">What you need</summary>
+      <ul>
+        <li>The bundle zip (<code>bundle.zip</code>)</li>
+        <li>The verifier script (for example <code>VERIFY_ALL.sh</code>)</li>
+        <li>A standard shell + hash tools (no service dependencies)</li>
+      </ul>
+    </details>
+
+    <details class="card span12 verify-rails-card">
+      <summary class="label">3-step verification</summary>
+      <ol>
+        <li><strong>Unzip</strong> the bundle.</li>
+        <li><strong>Run</strong> the verifier script.</li>
+        <li><strong>Read</strong> the markers: green means verified; red means drift or mismatch.</li>
+      </ol>
+    </details>
+
+    <details class="card span12 verify-rails-card">
+      <summary class="label">What "good" looks like</summary>
+      <ul>
+        <li>Hashes match.</li>
+        <li>Receipts chain is continuous.</li>
+        <li>Verifier exits <code>0</code> and emits explicit success markers.</li>
+      </ul>
+    </details>
+
+    <details class="card span12 verify-rails-card">
+      <summary class="label">Failure modes (expected)</summary>
+      <ul>
+        <li>Missing files → bundle incomplete.</li>
+        <li>Hash mismatch → content changed.</li>
+        <li>Chain break → continuity violated.</li>
+      </ul>
+    </details>
+  </main>
+<!-- FOOTER_v2 -->
 <footer class="vm-footer">
   <div class="vm-footer-inner">
 
     <div class="vm-footer-left">
       <div>VaultMesh — Public Surface</div>
       <div class="vm-footer-muted">
-        No origin API calls. Static edge artifact.
+        Static edge artifact.
       </div>
     </div>
 
     <div class="vm-footer-right">
-      <div id="vm-build-id">Build: e0691ca</div>
-      <div id="vm-manifest-sha">Manifest: sha256:c0cf805e4a82d135eb90871ce7bf8c4df776c45bf1bd9c4a407369ee886014b8</div>
+      <div id="vm-build-id">Build: e9b450b</div>
+      <div><a href="/attest/" class="vm-footer-link">Verify →</a></div>
     </div>
 
   </div>
 
   <div class="vm-footer-bottom">
-    © VaultMesh Foundation — Proof > Power
+    © VaultMesh Foundation
+    · <a href="/legal/privacy/" class="vm-footer-link">Privacy</a>
+    · <a href="/legal/terms/" class="vm-footer-link">Terms</a>
+    · <a href="/security/" class="vm-footer-link">Security</a>
   </div>
 </footer>
 </body>

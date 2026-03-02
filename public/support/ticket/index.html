@@ -3,103 +3,102 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Support Ticket Intake | VaultMesh</title>
+  <title>Support Ticket — VaultMesh</title>
   <meta name="description" content="Structured support ticket intake for VaultMesh operations, verification, and incident response." />
-  <link rel="stylesheet" href="/shared/ui.css?v=bone-v05" />
+  <link rel="stylesheet" href="/shared/ui.css?v=scc-v1" />
 </head>
-<body class="vm-attest route-support-ticket">
+<body class="vm-attest route-support-ticket" data-kind="support-ticket">
   <!-- {{NAV}} -->
-  <div class="wrap">
-    <h1>VaultMesh - Support Ticket Intake</h1>
-    <div class="sub">Structured support contract for incidents and operational issues. Static GET documentation surface.</div>
+  <main class="page">
+    <section class="hero">
+      <h1>Support Ticket</h1>
+      <p class="subhead">
+        Structured support intake for incidents and operational issues. Receipted response.
+      </p>
+    </section>
 
-    <div class="card span12">
-      <div class="label">Status Bar</div>
-      <div class="row"><div class="k">surface</div><div class="v"><span class="badge PRESENT">PRESENT</span> STATIC_HTML</div></div>
-      <div class="row"><div class="k">mode</div><div class="v"><span class="badge PRESENT">PRESENT</span> NO_JS / NO_FETCH</div></div>
-      <div class="row"><div class="k">verify</div><div class="v"><span class="badge PRESENT">PRESENT</span> OFFLINE_COMPATIBLE</div></div>
-      <div class="row"><div class="k">route</div><div class="v"><code>/support/ticket/</code></div></div>
-      <div class="row"><div class="k">post_handler</div><div class="v"><code>/support/ticket</code> (separate)</div></div>
-    </div>
+    <section class="card">
+      <h2>Severity Levels</h2>
+      <ul>
+        <li><strong>SEV-1</strong> — verification-blocking outage</li>
+        <li><strong>SEV-2</strong> — degraded proof operations</li>
+        <li><strong>SEV-3</strong> — non-blocking defect or request</li>
+      </ul>
+    </section>
 
-    <div class="card span12">
-      <div class="label">Ticket Contract</div>
-      <div class="row"><div class="k">ticket model</div><div class="v"><span class="badge PRESENT">PRESENT</span> structured triage</div></div>
-      <div class="row"><div class="k">status tracking</div><div class="v"><a href="https://support.vaultmesh.org/support/status">support.vaultmesh.org/support/status</a></div></div>
-      <div class="row"><div class="k">endpoint split</div><div class="v"><span class="badge PRESENT">PRESENT</span> static GET + POST handler</div></div>
-    </div>
+    <section class="card">
+      <h2>Submit Ticket</h2>
+      <form method="post" action="/support/ticket" enctype="application/x-www-form-urlencoded">
+        <input type="hidden" name="form_id" value="support_ticket_v1" />
+        <input type="hidden" name="route" value="/support/ticket/" />
 
-    <div class="grid">
-      <div class="card span4">
-        <div class="label">Severity</div>
-        <div class="row"><div class="k">SEV-1</div><div class="v">verification-blocking outage</div></div>
-        <div class="row"><div class="k">SEV-2</div><div class="v">degraded proof operations</div></div>
-        <div class="row"><div class="k">SEV-3</div><div class="v">non-blocking defect/request</div></div>
-      </div>
+        <div>
+          <label for="st-name">Name</label>
+          <input id="st-name" type="text" name="name" required />
+        </div>
 
-      <div class="card span4">
-        <div class="label">Required Fields</div>
-        <div class="row"><div class="k">boundary</div><div class="v">service + environment</div></div>
-        <div class="row"><div class="k">time</div><div class="v">timestamp in UTC</div></div>
-        <div class="row"><div class="k">evidence</div><div class="v">digest IDs or run IDs</div></div>
-        <div class="row"><div class="k">impact</div><div class="v">who is blocked</div></div>
-      </div>
+        <div>
+          <label for="st-email">Email</label>
+          <input id="st-email" type="email" name="email" required />
+        </div>
 
-      <div class="card span4">
-        <div class="label">Flow</div>
-        <div class="row"><div class="k">1</div><div class="v">ticket created</div></div>
-        <div class="row"><div class="k">2</div><div class="v">triage + severity</div></div>
-        <div class="row"><div class="k">3</div><div class="v">evidence request</div></div>
-        <div class="row"><div class="k">4</div><div class="v">resolution + closure</div></div>
-      </div>
+        <div>
+          <label for="st-company">Company</label>
+          <input id="st-company" type="text" name="company" />
+        </div>
 
-      <div class="card span6">
-        <div class="label">Submission Routes</div>
-        <div class="row"><div class="k">GET docs</div><div class="v"><a href="/support/ticket/">/support/ticket/</a></div></div>
-        <div class="row"><div class="k">POST endpoint</div><div class="v"><code>/support/ticket</code></div></div>
-        <div class="row"><div class="k">status route</div><div class="v"><a href="https://support.vaultmesh.org/support/status">status host</a></div></div>
-      </div>
+        <div>
+          <label for="st-severity">Severity</label>
+          <select id="st-severity" name="severity">
+            <option value="P0">P0</option>
+            <option value="P1">P1</option>
+            <option value="P2" selected>P2</option>
+            <option value="P3">P3</option>
+          </select>
+        </div>
 
-      <div class="card span6">
-        <div class="label">Submit Ticket</div>
-        <form method="post" action="/support/ticket" enctype="application/x-www-form-urlencoded">
-          <input type="hidden" name="form_id" value="support_ticket_v1" />
-          <input type="hidden" name="route" value="/support/ticket/" />
-          <div class="row"><div class="k">name</div><div class="v"><input type="text" name="name" required /></div></div>
-          <div class="row"><div class="k">email</div><div class="v"><input type="email" name="email" required /></div></div>
-          <div class="row"><div class="k">company</div><div class="v"><input type="text" name="company" /></div></div>
-          <div class="row"><div class="k">severity</div><div class="v"><select name="severity"><option value="P0">P0</option><option value="P1">P1</option><option value="P2" selected>P2</option><option value="P3">P3</option></select></div></div>
-          <div class="row"><div class="k">subject</div><div class="v"><input type="text" name="subject" required /></div></div>
-          <div class="row"><div class="k">message</div><div class="v"><textarea name="message" rows="5" required></textarea></div></div>
-          <div class="row"><div class="k">submit</div><div class="v"><button type="submit">Create Ticket</button></div></div>
-        </form>
-      </div>
+        <div>
+          <label for="st-subject">Subject</label>
+          <input id="st-subject" type="text" name="subject" required />
+        </div>
 
-      <div class="card span6">
-        <div class="label">Security Reporting</div>
-        <div class="row"><div class="k">priority</div><div class="v"><span class="badge INVALID">INVALID</span> if active exploit path</div></div>
-        <div class="row"><div class="k">minimum evidence</div><div class="v">repro + impact + logs</div></div>
-        <div class="row"><div class="k">reference</div><div class="v"><a href="/trust/">/trust/</a></div></div>
-      </div>
+        <div>
+          <label for="st-message">Message</label>
+          <textarea id="st-message" name="message" rows="6" required></textarea>
+        </div>
 
-      <div class="card span12">
-        <div class="label">Action Row</div>
-        <div class="row"><div class="k">action</div><div class="v">OPEN_TICKET</div></div>
-        <div class="row"><div class="k">path</div><div class="v"><code>/support/ticket/</code></div></div>
-        <div class="row"><div class="k">expect</div><div class="v">SEVERITY + EVIDENCE_FIELDS</div></div>
-      </div>
+        <button type="submit" class="btn primary">Create Ticket</button>
+      </form>
+    </section>
 
-      <div class="card span12">
-        <div class="label">Legend</div>
-        <div class="row"><div class="k">what this is</div><div class="v">static support intake contract</div></div>
-        <div class="row"><div class="k">what this is not</div><div class="v">stateful ticketing backend</div></div>
-        <div class="row"><div class="k">next action</div><div class="v">provide severity and evidence bundle ids</div></div>
-        <div class="row"><div class="k">evidence links</div><div class="v"><a href="/attest/">/attest/</a> | <a href="/verify/">/verify/</a></div></div>
-      </div>
-    </div>
+    <section class="card">
+      <h2>Required Evidence</h2>
+      <ul>
+        <li><strong>Boundary</strong> — service + environment</li>
+        <li><strong>Time</strong> — timestamp in UTC</li>
+        <li><strong>Evidence</strong> — digest IDs or run IDs</li>
+        <li><strong>Impact</strong> — who is blocked</li>
+      </ul>
+    </section>
 
-    <div class="footer">Static statement: this page documents support intake. Official ticket submission occurs on <code>POST /support/ticket</code>.</div>
-  </div>
+    <details class="card">
+      <summary><h2>Security Reporting</h2></summary>
+      <ul>
+        <li><strong>Priority</strong> — critical if active exploit path</li>
+        <li><strong>Minimum evidence</strong> — repro + impact + logs</li>
+        <li><strong>Reference</strong> — <a href="/trust/">Trust model</a></li>
+      </ul>
+    </details>
+
+    <details class="card">
+      <summary><h2>Submission Routes</h2></summary>
+      <ul>
+        <li><strong>GET docs</strong> — <a href="/support/ticket/">this page</a></li>
+        <li><strong>POST endpoint</strong> — <code>/support/ticket</code></li>
+        <li><strong>Status tracking</strong> — <a href="https://support.vaultmesh.org/support/status">support.vaultmesh.org</a></li>
+      </ul>
+    </details>
+  </main>
   <!-- {{FOOTER}} -->
 </body>
 </html>

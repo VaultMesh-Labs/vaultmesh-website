@@ -10,6 +10,9 @@ deploy/edge/root/vaultmesh/
 reports/
 .DS_Store
 
+# signing keys (private — never commit)
+keys/*.pem
+
 # local-only site folders (non-canonical)
 support.vaultmesh.org/
 vaultmesh.org/

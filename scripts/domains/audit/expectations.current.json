@@ -1,0 +1,5 @@
+[
+  {"page": "/", "label": "Book Call", "expected_href": "/contact/?intent=book_call"},
+  {"page": "/proof-pack/", "label": "Request Snapshot Intake", "expected_href": "/proof-pack/intake/"},
+  {"page": "/support/", "label": "Open support ticket", "expected_href": "/support/open/"}
+]

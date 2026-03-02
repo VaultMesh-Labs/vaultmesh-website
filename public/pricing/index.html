@@ -3,101 +3,75 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pricing | VaultMesh</title>
+  <title>Pricing — VaultMesh</title>
   <meta name="description" content="VaultMesh pricing for Proof Pack Sprint, Command Center operations, and institutional pilots." />
-  <link rel="stylesheet" href="/shared/ui.css?v=bone-v05" />
+  <link rel="stylesheet" href="/shared/ui.css?v=scc-v1" />
 </head>
-<body class="vm-attest route-pricing">
+<body class="vm-attest route-pricing" data-kind="pricing">
   <!-- {{NAV}} -->
-  <div class="wrap">
-    <h1>VaultMesh - Pricing</h1>
-    <div class="sub">Assurance capacity pricing. Structured to map proof throughput and governance scope, not user seats.</div>
+  <main class="page">
+    <section class="hero">
+      <h1>Pricing</h1>
+      <p class="subhead">
+        Assurance capacity pricing. Structured to map proof throughput and governance scope, not user seats.
+      </p>
+    </section>
 
-    <div class="card span12">
-      <div class="label">Status Bar</div>
-      <div class="row"><div class="k">surface</div><div class="v"><span class="badge PRESENT">PRESENT</span> STATIC_HTML</div></div>
-      <div class="row"><div class="k">mode</div><div class="v"><span class="badge PRESENT">PRESENT</span> NO_JS / NO_FETCH</div></div>
-      <div class="row"><div class="k">verify</div><div class="v"><span class="badge PRESENT">PRESENT</span> OFFLINE_COMPATIBLE</div></div>
-      <div class="row"><div class="k">route</div><div class="v"><code>/pricing/</code></div></div>
-    </div>
-
-    <div class="card span12">
-      <div class="label">Bundle</div>
-      <div class="row"><div class="k">pricing model</div><div class="v"><span class="badge PRESENT">PRESENT</span> scope + assurance capacity</div></div>
-      <div class="row"><div class="k">verification included</div><div class="v"><span class="badge PRESENT">PRESENT</span> offline verifier workflows</div></div>
-      <div class="row"><div class="k">operator support</div><div class="v"><span class="badge PRESENT">PRESENT</span> support and intake routes</div></div>
-    </div>
-
-    <div class="grid">
-      <div class="card span4">
-        <div class="label">Proof Pack Sprint</div>
-        <div class="row"><div class="k">price</div><div class="v">$7,500 fixed</div></div>
-        <div class="row"><div class="k">scope</div><div class="v">one boundary, one claim set</div></div>
-        <div class="row"><div class="k">output</div><div class="v">offline-verifiable bundle</div></div>
+    <section class="card">
+      <h2>Entry Points</h2>
+      <ul>
+        <li><strong>Snapshot</strong> — $4,500 · 10-day fixed scope pilot</li>
+        <li><strong>Sprint</strong> — $7,500 · extended scope proof bundle</li>
+      </ul>
+      <p>Snapshot is the fixed-scope pilot. Sprint extends scope and verification depth.</p>
+      <div class="cta-row">
+        <a class="btn primary" href="/proof-pack/intake/?tier=snapshot">Start Snapshot</a>
+        <a class="btn" href="/proof-pack/intake/?tier=sprint">Start Sprint</a>
       </div>
+      <p class="vm-fail-note">You will choose tier again on intake. No silent downgrade.</p>
+    </section>
 
-      <div class="card span4">
-        <div class="label">Command Center</div>
-        <div class="row"><div class="k">price</div><div class="v">$2,500 per month</div></div>
-        <div class="row"><div class="k">scope</div><div class="v">single-system operations lane</div></div>
-        <div class="row"><div class="k">output</div><div class="v">continuous proof operations</div></div>
-      </div>
+    <section class="card">
+      <h2>Tier Details</h2>
+      <ul>
+        <li><strong>Snapshot</strong> — $4,500 fixed · one boundary, one claim set · 10 business days · offline-verifiable bundle</li>
+        <li><strong>Sprint</strong> — $7,500 fixed · extended boundary + claim set · deep verification bundle</li>
+      </ul>
+    </section>
 
-      <div class="card span4">
-        <div class="label">Institutional Pilot</div>
-        <div class="row"><div class="k">price</div><div class="v">from $120k per year</div></div>
-        <div class="row"><div class="k">scope</div><div class="v">multi-environment governance</div></div>
-        <div class="row"><div class="k">output</div><div class="v">external verifier posture</div></div>
-      </div>
+    <details class="card">
+      <summary><h2>Expansion Tiers</h2></summary>
+      <ul>
+        <li><strong>Command Center</strong> — $2,500 per month · single-system operations lane · continuous proof operations</li>
+        <li><strong>Institutional Pilot</strong> — from $120k per year · multi-environment governance · external verifier posture</li>
+        <li><strong>SupTech Platform</strong> — custom (6-7 figures) · authority-scale deployment · dispute workflow + long retention</li>
+      </ul>
+    </details>
 
-      <div class="card span6">
-        <div class="label">SupTech Platform</div>
-        <div class="row"><div class="k">model</div><div class="v">authority-scale deployment</div></div>
-        <div class="row"><div class="k">capabilities</div><div class="v">dispute workflow + long retention</div></div>
-        <div class="row"><div class="k">pricing</div><div class="v">custom (6-7 figures)</div></div>
-      </div>
+    <details class="card">
+      <summary><h2>Commercial Terms</h2></summary>
+      <ul>
+        <li><strong>Seat licenses</strong> — not applicable; not sold as seats</li>
+        <li><strong>Onboarding credit</strong> — Proof Pack can offset onboarding for expansion lanes</li>
+        <li><strong>Intake route</strong> — <a href="/proof-pack/intake/">Proof Pack intake</a> (choose tier)</li>
+      </ul>
+    </details>
 
-      <div class="card span6">
-        <div class="label">Commercial Terms</div>
-        <div class="row"><div class="k">seat licenses</div><div class="v"><span class="badge MISSING">MISSING</span> not sold as seats</div></div>
-        <div class="row"><div class="k">onboarding credit</div><div class="v">Proof Pack can offset onboarding</div></div>
-        <div class="row"><div class="k">intake route</div><div class="v"><a href="/proof-pack/intake/">/proof-pack/intake/</a></div></div>
-      </div>
+    <details class="card">
+      <summary><h2>FAQ</h2></summary>
+      <ul>
+        <li><strong>Do you sell seats?</strong> — No. Pricing follows assurance scope and proof throughput.</li>
+        <li><strong>Can Proof Pack roll into operations?</strong> — Yes. Proof Pack can be credited as onboarding for Command Center.</li>
+        <li><strong>Is offline verification included?</strong> — Yes. Verification workflows are core to every tier.</li>
+      </ul>
+    </details>
 
-      <div class="card span12">
-        <div class="label">Action Row</div>
-        <div class="row"><div class="k">action</div><div class="v">REQUEST_INTAKE</div></div>
-        <div class="row"><div class="k">path</div><div class="v"><code>/proof-pack/intake/</code></div></div>
-        <div class="row"><div class="k">expect</div><div class="v">BOUNDARY + CLAIMS_LOCK</div></div>
-      </div>
-
-      <div class="card span12">
-        <div class="label">FAQ</div>
-        <details>
-          <summary>Do you sell seats?</summary>
-          <p>No. Pricing follows assurance scope and proof throughput.</p>
-        </details>
-        <details>
-          <summary>Can Proof Pack roll into operations?</summary>
-          <p>Yes. Proof Pack can be credited as onboarding for Command Center.</p>
-        </details>
-        <details>
-          <summary>Is offline verification included?</summary>
-          <p>Yes. Verification workflows are core to every tier.</p>
-        </details>
-      </div>
-
-      <div class="card span12">
-        <div class="label">Legend</div>
-        <div class="row"><div class="k">what this is</div><div class="v">static pricing contract</div></div>
-        <div class="row"><div class="k">what this is not</div><div class="v">seat-license calculator</div></div>
-        <div class="row"><div class="k">next action</div><div class="v">choose boundary and submit intake</div></div>
-        <div class="row"><div class="k">evidence links</div><div class="v"><a href="/attest/">/attest/</a> | <a href="/verify/">/verify/</a></div></div>
-      </div>
-    </div>
-
-    <div class="footer">Data source: static pricing surface. No origin API calls.</div>
-  </div>
+    <section class="card">
+      <h2>Next Action</h2>
+      <p>Choose tier + boundary and <a href="/proof-pack/intake/">submit intake</a>.</p>
+      <p>Evidence: <a href="/attest/">Attestation</a> · <a href="/verify/">Verification</a></p>
+    </section>
+  </main>
   <!-- {{FOOTER}} -->
 </body>
 </html>

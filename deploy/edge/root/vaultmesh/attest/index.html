@@ -3,100 +3,135 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>VaultMesh - Public Attestation (v1.1)</title>
-  <link rel="stylesheet" href="/shared/ui.css?v=bone-v04" />
+  <title>Attest — VaultMesh Live Verification Surface</title>
+  <link rel="stylesheet" href="/shared/ui.css?v=scc-v1" />
 </head>
-<body class="vm-attest">
-<!-- NAV_v0 -->
-<nav class="vm-nav">
-  <div class="vm-nav-inner">
-    <div class="vm-brand">
-      <a href="/">VaultMesh</a>
-    </div>
-
-    <div class="vm-links">
-      <a href="/attest/">Attest</a>
-      <a href="/proof-pack/">Proof Pack</a>
-      <a href="/trust/">Trust</a>
-      <a href="/verify/">Verify</a>
-      <a href="/support/">Support</a>
-    </div>
-
-    <div class="vm-external">
-      <a href="https://cc.vaultmesh.org/" target="_blank" rel="noopener">
-        cc ↗
-      </a>
-    </div>
-  </div>
+<body class="vm-attest route-attest" data-kind="attest" data-route="/attest/">
+<nav class="vm-nav" aria-label="Primary">
+  <a class="vm-brand" href="/" aria-label="VaultMesh">VaultMesh</a>
+  <a class="vm-nav-cta" href="/contact/?intent=book_call" aria-label="Book a call">Book Call</a>
 </nav>
   <div class="wrap">
-    <h1>VaultMesh - Public Attestation (v1.1)</h1>
-    <div class="sub">Static bundle. <span class="badge MISSING">MISSING</span> is allowed; <span class="badge INVALID">INVALID</span> fails build gate. Evidence is digest-only.</div>
+    <h1>Site Build Verification</h1>
+    <div class="sub">This page is the proof portal for vaultmesh.org itself. Every deploy produces a manifest hash, a build ID, and signed artifacts you can verify offline.</div>
 
-    <div class="card span12">
-      <div class="label">Bundle</div>
+    <div class="card span12 attest-entry-card">
+      <div class="label">Next action</div>
+
+      <div class="cta-row attest-cta">
+        <a class="btn primary" href="/attest/attest.json">Download attest.json</a>
+        <div class="attest-cta-secondary">
+          <a class="btn secondary" href="/verify/">Verify</a>
+          <a class="btn secondary" href="/status/">Status</a>
+        </div>
+      </div>
+
+      <div class="muted" style="margin-top:10px">
+        attest.json is the canonical proof object (continuity, health, anchors, drift, authority, release).
+      </div>
+    </div>
+
+    <details class="card span12 attest-rails-card">
+      <summary class="label">This build</summary>
+      <div class="row"><div class="k">build_id</div><div class="v"><code id="vm-attest-build">e9b450b</code></div></div>
+      <div class="row"><div class="k">manifest</div><div class="v"><code id="vm-attest-manifest">Manifest: sha256:c0d4ae46a618a2d5b218b613a84f14410289ae516993243bce031d7d8c14493c</code></div></div>
+      <div class="row"><div class="k">artifacts</div><div class="v">
+        <a href="/attest/LATEST.txt">LATEST.txt</a> ·
+        <a href="/attest/attest.json">attest.json</a> ·
+        <a href="/attest/ROOT_HISTORY.txt">ROOT_HISTORY.txt</a> ·
+        <a href="/attest/ROOT_HISTORY.sig">ROOT_HISTORY.sig</a>
+      </div></div>
+      <div class="row"><div class="k">verify</div><div class="v" style="opacity:0.7"><code>shasum -a 256 MANIFEST.sha256</code> — compare with footer hash</div></div>
+    </details>
+
+    <details class="card span12 attest-rails-card">
+      <summary class="label">Bundle</summary>
       <div class="row"><div class="k">schema_id</div><div class="v" id="schema_id">...</div></div>
       <div class="row"><div class="k">ts</div><div class="v" id="ts">...</div></div>
       <div class="row"><div class="k">subject</div><div class="v" id="subject">...</div></div>
       <div class="row"><div class="k">latest</div><div class="v" id="latest">...</div></div>
-    </div>
+    </details>
 
-    <div class="grid">
-      <div class="card span6">
-        <div class="label">Continuity</div>
-        <div id="continuity"></div>
+    <details class="card span12 attest-rails-card">
+      <summary class="label">Continuity + health</summary>
+      <div id="continuity"></div>
+      <div id="health"></div>
+    </details>
+
+    <details class="card span12 attest-rails-card">
+      <summary class="label">Anchors + drift</summary>
+      <div id="anchors"></div>
+      <div id="drift"></div>
+    </details>
+
+    <details class="card span12 attest-rails-card">
+      <summary class="label">Authority + release</summary>
+      <div id="authority"></div>
+      <div class="row">
+        <div class="k">status</div>
+        <div class="v" id="release_status">MISSING</div>
       </div>
-      <div class="card span6">
-        <div class="label">Verification / Health</div>
-        <div id="health"></div>
+      <div class="row">
+        <div class="k">build_run_id</div>
+        <div class="v mono" id="release_build_run_id">—</div>
       </div>
-      <div class="card span4">
-        <div class="label">Anchors</div>
-        <div id="anchors"></div>
+      <div class="row">
+        <div class="k">deploy_target_id</div>
+        <div class="v mono" id="release_target_id">—</div>
       </div>
-      <div class="card span4">
-        <div class="label">Drift</div>
-        <div id="drift"></div>
+      <div class="row">
+        <div class="k">root_tree_sha256</div>
+        <div class="v mono" id="release_root_sha">—</div>
       </div>
-      <div class="card span4">
-        <div class="label">Authority</div>
-        <div id="authority"></div>
+      <div class="row">
+        <div class="k">caddyfile_sha256</div>
+        <div class="v mono" id="release_caddy_sha">—</div>
       </div>
-      <div class="card span12">
-        <div class="label">Legend</div>
-        <div class="muted">
-          <span class="badge PRESENT">PRESENT</span>
-          <span class="badge MISSING">MISSING</span>
-          <span class="badge UNKNOWN">UNKNOWN</span>
-          <span class="badge INVALID">INVALID</span>
+      <div class="row">
+        <div class="k">artifact</div>
+        <div class="v">
+          <a href="/attest/RELEASE_ATTEST.json" target="_blank">/attest/RELEASE_ATTEST.json</a>
         </div>
       </div>
-    </div>
+    </details>
+
+    <details class="card span12 attest-rails-card">
+      <summary class="label">Legend</summary>
+      <div class="muted">
+        <span class="badge PRESENT">PRESENT</span>
+        <span class="badge MISSING">MISSING</span>
+        <span class="badge UNKNOWN">UNKNOWN</span>
+        <span class="badge INVALID">INVALID</span>
+      </div>
+    </details>
 
     <div class="footer">
       Data source: <code>/attest/attest.json</code> and <code>/attest/LATEST.txt</code> (static). No origin API calls.
     </div>
   </div>
-<!-- FOOTER_v0 -->
+<!-- FOOTER_v2 -->
 <footer class="vm-footer">
   <div class="vm-footer-inner">
 
     <div class="vm-footer-left">
       <div>VaultMesh — Public Surface</div>
       <div class="vm-footer-muted">
-        No origin API calls. Static edge artifact.
+        Static edge artifact.
       </div>
     </div>
 
     <div class="vm-footer-right">
-      <div id="vm-build-id">Build: e0691ca</div>
-      <div id="vm-manifest-sha">Manifest: sha256:c0cf805e4a82d135eb90871ce7bf8c4df776c45bf1bd9c4a407369ee886014b8</div>
+      <div id="vm-build-id">Build: e9b450b</div>
+      <div><a href="/attest/" class="vm-footer-link">Verify →</a></div>
     </div>
 
   </div>
 
   <div class="vm-footer-bottom">
-    © VaultMesh Foundation — Proof > Power
+    © VaultMesh Foundation
+    · <a href="/legal/privacy/" class="vm-footer-link">Privacy</a>
+    · <a href="/legal/terms/" class="vm-footer-link">Terms</a>
+    · <a href="/security/" class="vm-footer-link">Security</a>
   </div>
 </footer>
 
@@ -123,6 +158,73 @@
       const valTxt = (val === null || val === undefined) ? '' : ` ${esc(val)}`;
       const evTxt = isDigestLike(ev) ? ` <span class="muted">[${esc(ev)}]</span>` : '';
       return `<div class="row"><div class="k">${esc(key)}</div><div class="v">${badge(st)}${valTxt}${evTxt}</div></div>`;
+    }
+
+    function shortHashWithTitle(el, full) {
+      if (!el) return;
+      if (!full || typeof full !== 'string') {
+        el.textContent = '—';
+        el.removeAttribute('title');
+        return;
+      }
+      el.textContent = full.slice(0, 27) + '…';
+      el.setAttribute('title', full);
+    }
+
+    function renderReleaseMissing() {
+      const status = document.getElementById('release_status');
+      if (status) status.textContent = 'MISSING';
+    }
+
+    function renderReleaseInvalid() {
+      const status = document.getElementById('release_status');
+      if (status) status.textContent = 'INVALID';
+    }
+
+    function renderReleasePresent(data) {
+      const status = document.getElementById('release_status');
+      const build = document.getElementById('release_build_run_id');
+      const target = document.getElementById('release_target_id');
+
+      if (status) status.textContent = 'PRESENT';
+      if (build) build.textContent = data.build_run_id || '—';
+      if (target) target.textContent = data.deploy_target_id || '—';
+
+      shortHashWithTitle(document.getElementById('release_root_sha'), data.deployed_root_tree_sha256);
+      shortHashWithTitle(document.getElementById('release_caddy_sha'), data.caddyfile_sha256);
+    }
+
+    function loadReleaseAttest() {
+      renderReleaseMissing();
+
+      fetch('./RELEASE_ATTEST.json', { cache: 'no-store' })
+        .then((r) => {
+          if (!r.ok) return null;
+          return r.json();
+        })
+        .then((data) => {
+          if (!data) return;
+
+          if (data.kind !== 'vaultmesh.website.release_attest_deploy.v1') {
+            renderReleaseInvalid();
+            return;
+          }
+
+          if (
+            !data.build_run_id ||
+            !data.deploy_target_id ||
+            !data.deployed_root_tree_sha256 ||
+            !data.caddyfile_sha256
+          ) {
+            renderReleaseInvalid();
+            return;
+          }
+
+          renderReleasePresent(data);
+        })
+        .catch(() => {
+          // stay MISSING, never throw
+        });
     }
 
     async function getText(url) {
@@ -178,6 +280,7 @@
     }
 
     main();
+    loadReleaseAttest();
   </script>
 </body>
 </html>

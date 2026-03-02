@@ -3,63 +3,77 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Support | VaultMesh</title>
-  <link rel="stylesheet" href="/shared/ui.css?v=bone-v04" />
+  <title>Support — VaultMesh</title>
+  <meta name="description" content="VaultMesh operational support. Structured intake, per-ticket status tracking, and evidence-linked triage." />
+  <link rel="stylesheet" href="/shared/ui.css?v=scc-v1" />
 </head>
-<body class="vm-bg">
-<!-- NAV_v0 -->
-<nav class="vm-nav">
-  <div class="vm-nav-inner">
-    <div class="vm-brand">
-      <a href="/">VaultMesh</a>
-    </div>
-
-    <div class="vm-links">
-      <a href="/attest/">Attest</a>
-      <a href="/proof-pack/">Proof Pack</a>
-      <a href="/trust/">Trust</a>
-      <a href="/verify/">Verify</a>
-      <a href="/support/">Support</a>
-    </div>
-
-    <div class="vm-external">
-      <a href="https://cc.vaultmesh.org/" target="_blank" rel="noopener">
-        cc ↗
-      </a>
-    </div>
-  </div>
+<body class="vm-attest route-support" data-kind="support" data-route="/support/">
+<nav class="vm-nav" aria-label="Primary">
+  <a class="vm-brand" href="/" aria-label="VaultMesh">VaultMesh</a>
+  <a class="vm-nav-cta" href="/contact/?intent=book_call" aria-label="Book a call">Book Call</a>
 </nav>
-  <main class="vm-container">
-    <section class="vm-panel">
-      <header class="vm-panel-header">
-        <h1 class="vm-title">Support</h1>
-        <span class="vm-chip vm-chip-neutral">Operator Surface</span>
-      </header>
-      <p class="vm-muted">Support routing for public issue intake and operator follow-through.</p>
-      <div class="vm-meta">Build: e0691ca</div>
+  <main class="page">
+    <section class="hero">
+      <h1>Support</h1>
+      <p class="subhead">
+        Structured intake and per-ticket status tracking for active engagements.
+        Every event is receipted.
+      </p>
     </section>
 
+    <div class="grid-2">
+      <div class="card">
+        <h2>Open a ticket</h2>
+        <p>
+          Deterministic intake for support events. Evidence-linked triage
+          with receipted state transitions.
+        </p>
+        <div class="cta-row"><a class="btn primary" href="/support/open/">Open support ticket</a></div>
+      </div>
+
+      <div class="card">
+        <h2>Check status</h2>
+        <p>
+          Per-ticket status is served from the isolated support host.
+          No shared state with the public surface.
+        </p>
+        <div class="cta-row"><a class="btn" href="https://support.vaultmesh.org/support/status">Go to status</a></div>
+      </div>
+    </div>
+
+    <section class="card">
+      <h2>What to expect</h2>
+      <ul>
+        <li><strong>Acknowledgment</strong> — within 24 hours, receipted</li>
+        <li><strong>Triage</strong> — severity classification with evidence requirements</li>
+        <li><strong>Resolution</strong> — tracked through append-only ticket ledger</li>
+        <li><strong>Escalation</strong> — security issues route to <a href="/security/">disclosure path</a></li>
+      </ul>
+    </section>
   </main>
-<!-- FOOTER_v0 -->
+<!-- FOOTER_v2 -->
 <footer class="vm-footer">
   <div class="vm-footer-inner">
 
     <div class="vm-footer-left">
       <div>VaultMesh — Public Surface</div>
       <div class="vm-footer-muted">
-        No origin API calls. Static edge artifact.
+        Static edge artifact.
       </div>
     </div>
 
     <div class="vm-footer-right">
-      <div id="vm-build-id">Build: e0691ca</div>
-      <div id="vm-manifest-sha">Manifest: sha256:c0cf805e4a82d135eb90871ce7bf8c4df776c45bf1bd9c4a407369ee886014b8</div>
+      <div id="vm-build-id">Build: e9b450b</div>
+      <div><a href="/attest/" class="vm-footer-link">Verify →</a></div>
     </div>
 
   </div>
 
   <div class="vm-footer-bottom">
-    © VaultMesh Foundation — Proof > Power
+    © VaultMesh Foundation
+    · <a href="/legal/privacy/" class="vm-footer-link">Privacy</a>
+    · <a href="/legal/terms/" class="vm-footer-link">Terms</a>
+    · <a href="/security/" class="vm-footer-link">Security</a>
   </div>
 </footer>
 </body>

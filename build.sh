@@ -44,6 +44,35 @@ inject_marker_file() {
   mv "$tmp" "$file"
 }
 
+inject_route_identity() {
+  local file="$1"
+  local route="$2"
+
+  python3 - "$file" "$route" <<'PY'
+import pathlib
+import re
+import sys
+
+path = pathlib.Path(sys.argv[1])
+route = sys.argv[2]
+data = path.read_text(encoding="utf-8")
+
+match = re.search(r"<body\b[^>]*>", data, flags=re.IGNORECASE)
+if not match:
+    raise SystemExit(f"missing <body> tag in {path}")
+
+tag = match.group(0)
+if re.search(r'\bdata-route\s*=\s*"[^"]*"', tag, flags=re.IGNORECASE):
+    new_tag = re.sub(r'\bdata-route\s*=\s*"[^"]*"', f'data-route="{route}"', tag, flags=re.IGNORECASE)
+else:
+    new_tag = tag[:-1] + f' data-route="{route}">'
+
+if new_tag != tag:
+    data = data[:match.start()] + new_tag + data[match.end():]
+    path.write_text(data, encoding="utf-8")
+PY
+}
+
 is_nojs_static_surface() {
   local file="$1"
   case "$file" in
@@ -67,7 +96,7 @@ write_manifest() {
       else
         hash_file "$file"
       fi
-    done < <(find . -type f ! -name "MANIFEST.sha256" ! -name "BUILD_PROOF.txt" ! -name ".DS_Store" -print0 | sort -z) > MANIFEST.sha256
+    done < <(find . -type f ! -name "MANIFEST.sha256" ! -name "BUILD_PROOF.txt" ! -name "vaultmesh-site.json" ! -name ".DS_Store" -print0 | sort -z) > MANIFEST.sha256
   )
 }
 
@@ -118,6 +147,57 @@ find dist -type f -name "*.html" -exec sed -i.bak "s/{{BUILD_ID}}/${BUILD_ID}/g"
 find dist -type f -name "*.html" -exec sed -E -i.bak "s/Build: STATIC/Build: ${BUILD_ID}/g" {} +
 find dist -type f -name "*.bak" -delete
 
+while IFS= read -r -d '' html_file; do
+  rel_path="${html_file#dist}"
+  if [[ "${rel_path}" == */index.html ]]; then
+    route="${rel_path%index.html}"
+    [[ -n "${route}" ]] || route="/"
+  else
+    echo "BUILD_FAIL=non_index_html_not_allowed path=${html_file}" >&2
+    exit 1
+  fi
+  inject_route_identity "${html_file}" "${route}"
+done < <(find dist -type f -name "*.html" -print0 | sort -z)
+
+# Parity file — website's signed claim of what depot index it believes is current.
+# Included in MANIFEST.sha256 (and therefore covered by manifest signature).
+# Set VM_PARITY_PUBLIC_INDEX_PATH to a local copy of bastion PUBLIC_INDEX.json.
+PARITY_FILE="dist/.well-known/vaultmesh-parity.json"
+mkdir -p "$(dirname "${PARITY_FILE}")"
+if [[ -n "${VM_PARITY_PUBLIC_INDEX_PATH:-}" && -f "${VM_PARITY_PUBLIC_INDEX_PATH}" ]]; then
+  PARITY_INDEX_SHA="sha256:$(hash_file "${VM_PARITY_PUBLIC_INDEX_PATH}" | awk '{print $1}')"
+  # Extract latest release fields (first entry) via awk — no jq dependency.
+  PARITY_LATEST_NAME="$(awk -F'"' '/"name"/ {print $4; exit}' "${VM_PARITY_PUBLIC_INDEX_PATH}")"
+  PARITY_LATEST_SHA="$(awk -F'"' '/"sha256"/ {print $4; exit}' "${VM_PARITY_PUBLIC_INDEX_PATH}")"
+  cat > "${PARITY_FILE}" <<PARITY
+{
+  "kind": "vaultmesh.website.parity.v1",
+  "schema_version": 1,
+  "generated_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "scc_depot": {
+    "source": "local_snapshot",
+    "public_index_path": "${VM_PARITY_PUBLIC_INDEX_REMOTE_PATH:-/srv/vaultmesh/releases/public/PUBLIC_INDEX.json}",
+    "public_index_sha256": "${PARITY_INDEX_SHA}",
+    "latest_release": {
+      "name": "${PARITY_LATEST_NAME}",
+      "sha256": "${PARITY_LATEST_SHA}"
+    }
+  }
+}
+PARITY
+else
+  cat > "${PARITY_FILE}" <<PARITY
+{
+  "kind": "vaultmesh.website.parity.v1",
+  "schema_version": 1,
+  "generated_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "scc_depot": {
+    "source": "none"
+  }
+}
+PARITY
+fi
+
 find dist -exec touch -t 202001010000 {} +
 
 write_manifest
@@ -134,6 +214,49 @@ if [[ "${FINAL_MANIFEST_SHA}" != "${MANIFEST_SHA}" ]]; then
 fi
 
 hash_file dist/MANIFEST.sha256 > dist/BUILD_PROOF.txt
+
+# Manifest signing — conditional on VM_SITE_SIGNING_KEY.
+# Produces /attest/MANIFEST.sha256.sig (raw 64-byte Ed25519 signature).
+MANIFEST_SIGNED="false"
+if [[ -n "${VM_SITE_SIGNING_KEY:-}" && -f "${VM_SITE_SIGNING_KEY}" ]]; then
+  if bash "${SCRIPT_DIR}/scripts/sign_manifest.sh" "${VM_SITE_SIGNING_KEY}" dist >/dev/null; then
+    MANIFEST_SIGNED="true"
+  else
+    echo "WARN: manifest signing failed (build continues unsigned)" >&2
+  fi
+fi
+
+# Site identity document — machine-readable build heartbeat.
+# Excluded from manifest so it can reference the final manifest hash.
+SITE_ID_FILE="dist/.well-known/vaultmesh-site.json"
+mkdir -p "$(dirname "${SITE_ID_FILE}")"
+SITE_ORIGIN="${VM_SITE_ORIGIN:-https://vaultmesh.org}"
+if [[ "${MANIFEST_SIGNED}" == "true" ]]; then
+  SIG_URL_LINE="\"signature_url\": \"/attest/MANIFEST.sha256.sig\","
+else
+  SIG_URL_LINE="\"signature_url\": null,"
+fi
+cat > "${SITE_ID_FILE}" <<SITEID
+{
+  "kind": "vaultmesh.website.site_identity.v1",
+  "schema_version": 1,
+  "origin": "${SITE_ORIGIN}",
+  "generated_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "build_id": "${BUILD_ID}",
+  "manifest_sha256": "sha256:${FINAL_MANIFEST_SHA:-${MANIFEST_SHA}}",
+  "manifest_url": "/MANIFEST.sha256",
+  ${SIG_URL_LINE}
+  "attest_url": "/attest/",
+  "verification_instructions_url": "/attest/#verify",
+  "manifest_signed": ${MANIFEST_SIGNED},
+  "artifacts": {
+    "latest_txt": "/attest/LATEST.txt",
+    "root_history": "/attest/ROOT_HISTORY.txt",
+    "root_history_sig": "/attest/ROOT_HISTORY.sig"
+  }
+}
+SITEID
+touch -t 202001010000 "${SITE_ID_FILE}"
 
 ROUTES_CSV="${VM_ROUTES_REQUIRED_CSV}"
 BUILD_INFO_TMP="$(mktemp)"
@@ -165,5 +288,8 @@ cat > "${BUILD_INFO_FILE}" <<EOF
   "dist_tree_sha256": "${DIST_TREE_SHA256}"
 }
 EOF
+
+# Keep BUILD_INFO mtime deterministic for parity/freshness guard.
+touch -t 202001010000 "${BUILD_INFO_FILE}"
 
 echo "BUILD_OK=1"

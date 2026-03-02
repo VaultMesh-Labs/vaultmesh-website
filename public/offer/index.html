@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Offer — VaultMesh</title>
+  <meta name="description" content="VaultMesh proof-gated compliance infrastructure. What you get, what it costs, and how to verify every claim." />
+  <link rel="stylesheet" href="/shared/ui.css?v=scc-v1" />
+</head>
+<body class="vm-attest route-offer" data-kind="offer">
+  <!-- {{NAV}} -->
+  <main class="page">
+    <section class="hero">
+      <h1>The Offer</h1>
+      <p class="subhead">
+        Continuous, cryptographically verifiable integrity for sovereign systems.
+        Every claim is machine-verifiable. Every receipt is portable.
+      </p>
+    </section>
+
+    <div class="card span12 offer-entry-card">
+      <div class="label">Next action</div>
+
+      <div class="cta-row offer-cta">
+        <a class="btn primary" href="/proof-pack/intake/">Start Snapshot Intake</a>
+        <div class="offer-cta-secondary">
+          <a class="btn secondary" href="/pricing/">Compare tiers</a>
+          <a class="btn secondary" href="/verify/">Verify</a>
+        </div>
+      </div>
+
+      <div class="muted" style="margin-top:10px">
+        Fixed-scope proof deliverable. No JS. Receipted submission.
+      </div>
+    </div>
+
+    <details class="card span12 offer-rails-card">
+      <summary class="label">What you get</summary>
+      <ul>
+        <li><strong>Signed state</strong> — Ed25519 signatures on every state transition, detached and offline-verifiable</li>
+        <li><strong>Hash-chained receipts</strong> — Append-only ledgers with SHA-256 continuity, tamper-evident by construction</li>
+        <li><strong>Drift detection</strong> — Continuous monitoring across all tracked repos and infrastructure</li>
+        <li><strong>Equivocation detection</strong> — Fork and replay awareness, adversarial validation by default</li>
+        <li><strong>Portable evidence bundles</strong> — Export, ingest, and dispute packs that work without vendor access</li>
+        <li><strong>Proof anchoring</strong> — Optional RFC 3161 timestamps and blockchain anchors (ETH, BTC)</li>
+      </ul>
+    </details>
+
+    <details class="card span12 offer-rails-card">
+      <summary class="label">Scope + delivery</summary>
+      <ul>
+        <li>Static edge artifacts — no origin API calls on page load</li>
+        <li>Deterministic builds — reproducible from source</li>
+        <li>Manifest-hashed releases — every deploy is integrity-checked</li>
+        <li>Ceremony-gated releases — automated but auditable promotion</li>
+      </ul>
+    </details>
+
+    <details class="card span12 offer-rails-card">
+      <summary class="label">What it replaces</summary>
+      <ul>
+        <li>Quarterly compliance PDFs → continuous signed proof</li>
+        <li>Vendor-locked dashboards → portable evidence bundles</li>
+        <li>Trust-me attestations → machine-verifiable claims</li>
+        <li>Periodic audits → real-time drift detection</li>
+      </ul>
+    </details>
+
+    <details class="card span12 offer-rails-card">
+      <summary class="label">Evidence links</summary>
+      <div class="row"><div class="k">evidence</div><div class="v"><a href="/attest/">Attestation</a> | <a href="/verify/">Verification</a></div></div>
+      <div class="row"><div class="k">proof chain</div><div class="v">Every claim on this page is backed by infrastructure you can inspect. The proof chain is live and publicly verifiable.</div></div>
+    </details>
+
+    <section class="card">
+      <h2>Questions?</h2>
+      <div class="cta-row"><a class="btn" href="/contact/">Start a conversation</a></div>
+    </section>
+  </main>
+  <!-- {{FOOTER}} -->
+</body>
+</html>
